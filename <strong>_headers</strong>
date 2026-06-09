@@ -1,7 +1,0 @@
-# 班级相册专属缓存配置
-/*.webp
-  Cache-Control: public, max-age=2592000, immutable
-/*.mp3
-  Cache-Control: public, max-age=2592000, immutable
-/index.html
-  Cache-Control: public, max-age=43200
