@@ -2,14 +2,13 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<!-- 【全网顶配GitHub Pages图片加速头部】专属境外网络优化、强缓存、资源优先级预加载 -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<!-- 超强长期缓存：图片静态资源缓存30天，二次打开零加载 -->
-<meta http-equiv="Cache-Control" content="public, max-age=2592000, immutable">
-<meta http-equiv="Pragma" content="cache">
-<!-- DNS预解析+预连接，提前打通GitHub图片服务器通道 -->
-<link rel="preconnect" href="github.io" crossorigin>
-<link rel="dns-prefetch" href="github.io">
+<!-- 极致缓存优化 -->
+<meta http-equiv="Cache-Control" content="public, max-age=31536000, immutable">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<!-- 预连接国内CDN，大幅提速 -->
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 <title>我们的青春｜班级合照</title>
 <style>
 * {
@@ -21,13 +20,10 @@ body {
   background: #000;
   overflow: hidden;
   font-family: "Microsoft Yahei", sans-serif;
-  /* 硬件极致加速，GPU渲染图片，脱离CPU卡顿 */
   transform: translateZ(0);
-  -webkit-transform: translateZ(0);
   will-change: opacity;
   user-select: none;
 }
-/* 顶部文字样式 */
 .title-text {
   position: fixed;
   top: 40px;
@@ -46,30 +42,28 @@ body {
   font-size: 16px;
   opacity: 0.9;
 }
-/* 相册轮播加速优化：限制渲染层级、减少重绘重排 */
 .album-box {
   width: 100vw;
   height: 100vh;
   position: relative;
   touch-action: pan-y;
-  contain: layout size paint; /* 容器隔离渲染，只渲染当前图片 */
+  contain: layout size paint;
 }
 .photo-item {
   position: absolute;
   width: 100%;
   height: 100%;
   opacity: 0;
-  transition: opacity 0.7s ease-in-out; /* 缩短过渡动画，减少渲染耗时 */
+  transition: opacity 0.5s ease-out;
   background-size: contain;
-  background-position: center center;
+  background-position: center;
   background-repeat: no-repeat;
-  image-rendering: optimizeSpeed; /* 优先加载速度，画质无损微调 */
   will-change: opacity;
+  content-visibility: auto;
 }
 .photo-item.active {
   opacity: 1;
 }
-/* 优化轻量化花瓣：最低渲染功耗，绝不抢占图片网速带宽 */
 .petal {
   position: fixed;
   z-index: 100;
@@ -88,7 +82,6 @@ body {
   75% {transform: translateY(75vh) rotate(270deg) translateX(6px);}
   100% {transform: translateY(100vh) rotate(360deg) translateX(0);}
 }
-/* 底部提示文字 */
 .tips {
   position: fixed;
   bottom: 80px;
@@ -100,7 +93,6 @@ body {
   z-index: 99;
   pointer-events: none;
 }
-/* 悬浮控制栏 */
 .control-bar {
   position: fixed;
   bottom: 25px;
@@ -138,35 +130,34 @@ body {
 <div class="title-text sub-text">时光不老 我们不散</div>
 
 <div class="album-box" id="slideWrap">
-  <!-- 28张webp 全局懒加载+预加载机制，后台静默缓存 -->
-  <div class="photo-item active" style="background-image:url('p1.webp')"></div>
-  <div class="photo-item" style="background-image:url('p2.webp')"></div>
-  <div class="photo-item" style="background-image:url('p3.webp')"></div>
-  <div class="photo-item" style="background-image:url('p4.webp')"></div>
-  <div class="photo-item" style="background-image:url('p5.webp')"></div>
-  <div class="photo-item" style="background-image:url('p6.webp')"></div>
-  <div class="photo-item" style="background-image:url('p7.webp')"></div>
-  <div class="photo-item" style="background-image:url('p8.webp')"></div>
-  <div class="photo-item" style="background-image:url('p9.webp')"></div>
-  <div class="photo-item" style="background-image:url('p10.webp')"></div>
-  <div class="photo-item" style="background-image:url('p11.webp')"></div>
-  <div class="photo-item" style="background-image:url('p12.webp')"></div>
-  <div class="photo-item" style="background-image:url('p13.webp')"></div>
-  <div class="photo-item" style="background-image:url('p14.webp')"></div>
-  <div class="photo-item" style="background-image:url('p15.webp')"></div>
-  <div class="photo-item" style="background-image:url('p16.webp')"></div>
-  <div class="photo-item" style="background-image:url('p17.webp')"></div>
-  <div class="photo-item" style="background-image:url('p18.webp')"></div>
-  <div class="photo-item" style="background-image:url('p19.webp')"></div>
-  <div class="photo-item" style="background-image:url('p20.webp')"></div>
-  <div class="photo-item" style="background-image:url('p21.webp')"></div>
-  <div class="photo-item" style="background-image:url('p22.webp')"></div>
-  <div class="photo-item" style="background-image:url('p23.webp')"></div>
-  <div class="photo-item" style="background-image:url('p24.webp')"></div>
-  <div class="photo-item" style="background-image:url('p25.webp')"></div>
-  <div class="photo-item" style="background-image:url('p26.webp')"></div>
-  <div class="photo-item" style="background-image:url('p27.webp')"></div>
-  <div class="photo-item" style="background-image:url('p28.webp')"></div>
+  <div class="photo-item active" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p1.webp')"></div>
+  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p2.webp')"></div>
+  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p3.webp')"></div>
+  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p4.webp')"></div>
+  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p5.webp')"></div>
+  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p6.webp')"></div>
+  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p7.webp')"></div>
+  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p8.webp')"></div>
+  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p9.webp')"></div>
+  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p10.webp')"></div>
+  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p11.webp')"></div>
+  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p12.webp')"></div>
+  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p13.webp')"></div>
+  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p14.webp')"></div>
+  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p15.webp')"></div>
+  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p16.webp')"></div>
+  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p17.webp')"></div>
+  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p18.webp')"></div>
+  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p19.webp')"></div>
+  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p20.webp')"></div>
+  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p21.webp')"></div>
+  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p22.webp')"></div>
+  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p23.webp')"></div>
+  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p24.webp')"></div>
+  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p25.webp')"></div>
+  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p26.webp')"></div>
+  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p27.webp')"></div>
+  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p28.webp')"></div>
 </div>
 
 <div class="tips">点击页面开启音效｜图片预缓存加载｜滑动切图｜控音启停轮播</div>
@@ -178,16 +169,16 @@ body {
   <button class="control-btn active" id="autoPlayBtn">▶ 自动轮播</button>
 </div>
 
-<!-- 音乐极致限速加载：图片优先级高于音乐，绝不抢占图片带宽 -->
+<!-- 音频CDN地址 -->
 <audio id="bgm1" preload="none" muted>
-  <source src="Chinesesong.mp3" type="audio/mpeg">
-</audio>
+  <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/Chinesesong.mp3" type="audio/mpeg">
+
 <audio id="bgm2" preload="none" muted>
-  <source src="seeyouagain.mp3" type="audio/mpeg">
-</audio>
+  <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/seeyouagain.mp3" type="audio/mpeg">
+
 
 <script>
-// ===== 【GitHub专属图片全速优化】八大加速逻辑+原有功能100%保留 =====
+// 极速版逻辑：只加载当前+前后1张，极致节省流量
 const photos = document.querySelectorAll('.photo-item');
 const slideWrap = document.getElementById('slideWrap');
 let index = 0;
@@ -195,19 +186,19 @@ let slideTimer = null;
 let autoPlayStatus = true;
 const totalImg = photos.length;
 
-// =========1. 智能分片预加载：只加载当前+前后2张图，不同时加载28张，根治首屏卡顿=========
-const preloadNum = 2;
+// 仅预加载 前后1张，打开瞬间显示
+const preloadNum = 1;
 function preloadImg(curIndex){
-  // 清空所有预加载权重，只保留相邻图片加载
-  photos.forEach(item=>item.style.opacity=0);
-  // 加载当前、前2、后2张，最少资源占用，切换秒出图
   for(let i = curIndex - preloadNum; i <= curIndex + preloadNum; i++){
     let realIdx = (i + totalImg) % totalImg;
-    photos[realIdx].style.opacity = i===curIndex ? 1 : 0;
+    const img = photos[realIdx].style.backgroundImage;
+    // 静默加载，不阻塞页面
+    const temp = new Image();
+    temp.src = img.replace(/url\(["']?(.*?)["']?\)/,'$1');
   }
 }
 
-// =========2. 优化自动轮播：适配预加载，切换零等待，时长适配缓存速度=========
+// 自动轮播
 function autoSlide() {
   photos[index].classList.remove('active');
   index = (index + 1) % totalImg;
@@ -224,99 +215,96 @@ function stopAuto() {
   autoPlayStatus = false;
   document.getElementById('autoPlayBtn').classList.remove('active');
 }
-// 首页优先预加载前3张，打开直接秒显示
-preloadImg(0);
-startAuto();
 
-// =========3. 滑动切图优化：切图同步预加载下一张，无空白等待=========
-let startX = 0, moveX = 0;
+// 触摸滑动切换
+let startX = 0;
 slideWrap.addEventListener('touchstart',e=>{ startX = e.touches[0].clientX; });
-slideWrap.addEventListener('touchend',e=>{ moveX = e.changedTouches[0].clientX; slideJudge(); });
-slideWrap.addEventListener('mousedown',e=>{ startX = e.clientX; slideWrap.onmousemove = ev=>moveX = ev.clientX; });
-slideWrap.addEventListener('mouseup',()=>{ slideJudge(); slideWrap.onmousemove = null; });
-function slideJudge(){
-  const diff = startX - moveX;
+slideWrap.addEventListener('touchend',e=>{
+  const diff = startX - e.changedTouches[0].clientX;
   photos[index].classList.remove('active');
-  if(diff > 45) index = (index + 1) % totalImg;
-  if(diff < -45) index = (index - 1 + totalImg) % totalImg;
+  if(diff>40) index=(index+1)%totalImg;
+  if(diff<-40) index=(index-1+totalImg)%totalImg;
   photos[index].classList.add('active');
   preloadImg(index);
-}
+});
 
-// =========4. 音乐带宽降级：音乐完全延后加载，图片加载优先级最高=========
+// 鼠标拖拽切换
+slideWrap.addEventListener('mousedown',e=>{ startX = e.clientX; });
+slideWrap.addEventListener('mouseup',e=>{
+  const diff = startX - e.clientX;
+  photos[index].classList.remove('active');
+  if(diff>40) index=(index+1)%totalImg;
+  if(diff<-40) index=(index-1+totalImg)%totalImg;
+  photos[index].classList.add('active');
+  preloadImg(index);
+});
+
+// 音频控制
 const bgm1 = document.getElementById('bgm1');
 const bgm2 = document.getElementById('bgm2');
 const muteBtn = document.getElementById('muteBtn');
-const prevSong = document.getElementById('prevSong');
-const nextSong = document.getElementById('nextSong');
-const autoPlayBtn = document.getElementById('autoPlayBtn');
-
 let currentAudio = bgm1;
 let isMute = true;
-bgm1.loop = false;
-bgm2.loop = false;
 
-// 页面图片加载完毕后，再初始化音乐，不抢占网速
+// 页面加载完毕再初始化音乐，不抢占网速
 window.addEventListener('load',()=>{
   bgm1.load();bgm2.load();
+  preloadImg(0);
+  startAuto();
 },{once:true});
 
-// 点击解锁音频（不变）
-document.addEventListener('click',function(){
+// 点击解锁音频
+document.addEventListener('click',()=>{
   if(isMute){
     isMute = false;
     currentAudio.muted = false;
-    currentAudio.play().catch(e=>{});
+    currentAudio.play().catch(()=>{});
     muteBtn.innerText = '🔊 静音';
   }
 },{once:true});
 
-// 自动切歌（不变）
+// 自动切歌
 function autoSwitchSong(){
   currentAudio.pause();
   currentAudio.currentTime = 0;
   currentAudio = currentAudio === bgm1 ? bgm2 : bgm1;
-  if(!isMute) currentAudio.play().catch(e=>{});
+  if(!isMute) currentAudio.play().catch(()=>{});
 }
 bgm1.onended = autoSwitchSong;
 bgm2.onended = autoSwitchSong;
 
-// 静音、切歌、轮播启停（功能完全不变）
-muteBtn.onclick = function(e){
+// 按钮事件
+muteBtn.onclick = e=>{
   e.stopPropagation();
   isMute = !isMute;
   currentAudio.muted = isMute;
-  this.innerText = isMute ? '🔇 播放' : '🔊 静音';
-  if(!isMute) currentAudio.play().catch(e=>{});
+  muteBtn.innerText = isMute ? '🔇 播放' : '🔊 静音';
+  if(!isMute) currentAudio.play().catch(()=>{});
 }
-nextSong.onclick = function(e){ e.stopPropagation(); autoSwitchSong(); }
-prevSong.onclick = function(e){
+document.getElementById('nextSong').onclick=e=>{e.stopPropagation();autoSwitchSong();}
+document.getElementById('prevSong').onclick=e=>{
   e.stopPropagation();
-  currentAudio.pause();
-  currentAudio.currentTime = 0;
-  currentAudio = currentAudio === bgm2 ? bgm1 : bgm2;
-  if(!isMute) currentAudio.play().catch(e=>{});
+  currentAudio.pause();currentAudio.currentTime=0;
+  currentAudio = currentAudio===bgm2?bgm1:bgm2;
+  if(!isMute) currentAudio.play().catch(()=>{});
 }
-autoPlayBtn.onclick = function(){
-  autoPlayStatus ? stopAuto() : startAuto();
+document.getElementById('autoPlayBtn').onclick=()=>{
+  autoPlayStatus?stopAuto():startAuto();
 }
 
-// =========5. 花瓣极致减负：超低频率创建，自动销毁，零带宽占用=========
+// 轻量化花瓣动画
 function createPetal() {
-  let petal = document.createElement('div');
-  petal.classList.add('petal');
-  let size = Math.random() * 6 + 3;
-  let left = Math.random() * 100;
-  let duration = Math.random() * 8 + 6;
-  petal.style.width = size + 'px';
-  petal.style.height = size * 0.8 + 'px';
-  petal.style.left = left + '%';
-  petal.style.animationDuration = duration + 's';
-  document.body.appendChild(petal);
-  setTimeout(()=>{ petal.remove(); }, duration * 1000);
+  const p = document.createElement('div');
+  p.classList.add('petal');
+  const size = Math.random()*5+3;
+  p.style.width = size+'px';
+  p.style.height = size*0.8+'px';
+  p.style.left = Math.random()*100+'%';
+  p.style.animationDuration = (Math.random()*6+5)+'s';
+  document.body.appendChild(p);
+  setTimeout(()=>p.remove(), 10000);
 }
-// 降低花瓣生成频率，彻底不抢图片网速
-setInterval(createPetal, 600);
+setInterval(createPetal, 800);
 </script>
 </body>
 </html>
