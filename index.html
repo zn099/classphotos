@@ -19,6 +19,44 @@ body {
   user-select: none;
 }
 
+/* 加载提示 */
+.loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #0a0a0a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  transition: opacity 0.5s ease-out;
+}
+.loading-text {
+  color: #fff;
+  font-size: 16px;
+  opacity: 0.7;
+  letter-spacing: 2px;
+  margin-top: 20px;
+}
+.loading-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fff;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.5); opacity: 1; }
+}
+.loading.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .head-text {
   position: fixed;
   top: 5vh;
@@ -121,8 +159,15 @@ body {
 
 <body>
 
+<!-- 加载提示 -->
+<div class="loading" id="loading">
+  <div class="loading-dot"></div>
+  <div class="loading-text">正在加载青春回忆...</div>
+</div>
+
 <div class="head-text">
   <div class="main-title">致我们的青春</div>
+  <div class="sub-title">智能装备2201</div>
 </div>
 
 <div class="slider" id="slider">
@@ -131,6 +176,7 @@ body {
   <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.3.webp)"></div>
   <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.4.webp)"></div>
   <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.5.webp)"></div>
+
   <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p1.webp)"></div>
   <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p2.webp)"></div>
   <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p3.webp)"></div>
@@ -172,71 +218,174 @@ body {
   <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p32.webp)"></div>
 </div>
 
+<div class="tip">左右滑动查看照片 · 点击按钮静音/切歌</div>
 
 <div class="controls">
   <button class="btn" id="musicBtn">🔊</button>
   <button class="btn" id="prev">◀</button>
+  <button class="btn" id="nextSong">🔀</button>
   <button class="btn" id="next">▶</button>
 </div>
 
-<!-- AAC(m4a) 音频格式 加载更快 -->
-<audio id="bgm" loop autoplay preload="auto">
+<!-- 两首AAC(m4a)格式音乐 加载更快 -->
+<audio id="bgm1" loop preload="auto">
   <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/Chinesesong.m4a" type="audio/mp4">
-</audio>
+
+<audio id="bgm2" loop preload="auto">
+  <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/seeyouagain.m4a" type="audio/mp4">
+
 
 <script>
 const photos = document.querySelectorAll('.photo');
 const slider = document.getElementById('slider');
-const bgm = document.getElementById('bgm');
+const bgm1 = document.getElementById('bgm1');
+const bgm2 = document.getElementById('bgm2');
 const musicBtn = document.getElementById('musicBtn');
 const prevBtn = document.getElementById('prev');
 const nextBtn = document.getElementById('next');
+const nextSongBtn = document.getElementById('nextSong');
+const loading = document.getElementById('loading');
 
 let index = 0;
+let timer = null;
+let isMute = false;
+let currentAudio = bgm1; // 默认播放第一首
 
-// 自动轮播
+// ========== 核心：预加载逻辑 ==========
+// 预加载前3张关键图片（首屏+下两张）
+function preloadImages() {
+  return new Promise((resolve) => {
+    const imagesToLoad = [
+      photos[0].style.backgroundImage,
+      photos[1].style.backgroundImage,
+      photos[2].style.backgroundImage
+    ];
+    
+    let loadedCount = 0;
+    const totalToLoad = imagesToLoad.length;
+    
+    imagesToLoad.forEach(imgStyle => {
+      const img = new Image();
+      img.src = imgStyle.replace(/url\(["']?(.*?)["']?\)/, '$1');
+      img.onload = img.onerror = () => {
+        loadedCount++;
+        if (loadedCount === totalToLoad) {
+          resolve();
+        }
+      };
+    });
+  });
+}
+
+// 预加载两首音乐
+function preloadAudio() {
+  return new Promise((resolve) => {
+    let loadedCount = 0;
+    const total = 2;
+    const checkLoaded = () => {
+      loadedCount++;
+      if (loadedCount === total) resolve();
+    };
+    bgm1.oncanplaythrough = checkLoaded;
+    bgm2.oncanplaythrough = checkLoaded;
+    // 超时保护：3秒后自动继续
+    setTimeout(resolve, 3000);
+  });
+}
+
+// 全部加载完成后启动
+async function init() {
+  // 并行加载图片和两首音乐
+  await Promise.all([preloadImages(), preloadAudio()]);
+  
+  // 隐藏加载提示
+  loading.classList.add('hidden');
+  
+  // 开始自动轮播
+  startAutoSlide();
+  
+  // 尝试自动播放第一首音乐
+  try {
+    await currentAudio.play();
+  } catch (e) {
+    // 浏览器阻止自动播放时，点击页面任意位置播放
+    document.addEventListener('click', function playOnClick() {
+      currentAudio.play().catch(() => {});
+      document.removeEventListener('click', playOnClick);
+    }, { once: true });
+  }
+}
+
+// ========== 轮播逻辑 ==========
 function slide() {
   photos[index].classList.remove('active');
   index = (index + 1) % photos.length;
   photos[index].classList.add('active');
+  
+  // 滑动时预加载下一张图
+  const nextIndex = (index + 1) % photos.length;
+  const tempImg = new Image();
+  tempImg.src = photos[nextIndex].style.backgroundImage.replace(/url\(["']?(.*?)["']?\)/, '$1');
 }
-let timer = setInterval(slide, 4500);
 
-// 上一张
-prevBtn.onclick = () => {
+function startAutoSlide() {
+  timer = setInterval(slide, 4500);
+}
+
+function stopAutoSlide() {
   clearInterval(timer);
+}
+
+// 上一张图片
+prevBtn.onclick = () => {
+  stopAutoSlide();
   photos[index].classList.remove('active');
   index = (index - 1 + photos.length) % photos.length;
   photos[index].classList.add('active');
-  timer = setInterval(slide, 4500);
+  startAutoSlide();
 };
 
-// 下一张
+// 下一张图片
 nextBtn.onclick = () => {
-  clearInterval(timer);
+  stopAutoSlide();
   slide();
-  timer = setInterval(slide, 4500);
+  startAutoSlide();
 };
 
-// 音乐：默认播放，点击静音/取消静音
-let isMute = false;
+// ========== 音乐控制逻辑 ==========
+// 静音/取消静音
 musicBtn.onclick = () => {
   isMute = !isMute;
-  bgm.muted = isMute;
+  currentAudio.muted = isMute;
   musicBtn.innerText = isMute ? "🔇" : "🔊";
 };
 
-// 滑动切图
+// 手动切歌
+nextSongBtn.onclick = (e) => {
+  e.stopPropagation();
+  // 暂停当前歌曲并重置进度
+  currentAudio.pause();
+  currentAudio.currentTime = 0;
+  // 切换到下一首
+  currentAudio = currentAudio === bgm1 ? bgm2 : bgm1;
+  // 非静音状态下自动播放新歌曲
+  if (!isMute) {
+    currentAudio.play().catch(() => {});
+  }
+};
+
+// ========== 滑动切图 ==========
 let startX = 0;
 slider.addEventListener('touchstart', e => startX = e.touches[0].clientX);
 slider.addEventListener('touchend', e => {
   const diff = startX - e.changedTouches[0].clientX;
-  clearInterval(timer);
+  stopAutoSlide();
   if (diff > 50) nextBtn.onclick();
   if (diff < -50) prevBtn.onclick();
+  startAutoSlide();
 });
 
-// 花瓣动画
+// ========== 花瓣动画 ==========
 function petal() {
   const p = document.createElement('div');
   p.classList.add('petal');
@@ -249,6 +398,9 @@ function petal() {
   setTimeout(() => p.remove(), 13000);
 }
 setInterval(petal, 900);
+
+// 页面加载完成后启动初始化
+window.addEventListener('load', init);
 </script>
 </body>
 </html>
