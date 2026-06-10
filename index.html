@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<!-- 强化缓存 + 预连接CDN，提前建立网络连接，大幅提速 -->
 <meta http-equiv="Cache-Control" content="public, max-age=31536000, immutable">
+<link rel="preconnect" href="cdn.jsdelivr.net">
 <title>致我们的青春</title>
 <style>
 * {
@@ -31,7 +33,7 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 999;
-  transition: opacity 0.5s ease-out;
+  transition: opacity 0.3s ease-out;
 }
 .loading-text {
   color: #fff;
@@ -93,14 +95,13 @@ body {
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
-  transition: opacity 0.6s ease-out;
+  transition: opacity 0.4s ease-out;
   will-change: opacity;
 }
 .photo.active {
   opacity: 1;
 }
 
-/* 播放状态实时显示 */
 .play-status {
   position: fixed;
   bottom: 10vh;
@@ -158,7 +159,6 @@ body {
 </head>
 
 <body>
-<!-- 加载页：统一显示 回忆加载中 -->
 <div class="loading" id="loading">
   <div class="loading-dot"></div>
   <div class="loading-text">回忆加载中</div>
@@ -216,7 +216,7 @@ body {
   <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p32.webp)"></div>
 </div>
 
-<div class="play-status" id="playStatus">音乐加载中...</div>
+<div class="play-status" id="playStatus">点击页面播放音乐</div>
 
 <div class="controls">
   <button class="btn" id="musicBtn">🔇</button>
@@ -225,12 +225,13 @@ body {
   <button class="btn" id="next">▶</button>
 </div>
 
-<audio id="bgm1" loop preload="auto">
+<!-- 音频：流式播放优先，不等待全量加载 -->
+<audio id="bgm1" loop preload="metadata">
   <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/Chinesesong.m4a" type="audio/mp4">
-</audio>
-<audio id="bgm2" loop preload="auto">
+
+<audio id="bgm2" loop preload="metadata">
   <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/seeyouagain.m4a" type="audio/mp4">
-</audio>
+
 
 <script>
 const photos = document.querySelectorAll('.photo');
@@ -243,10 +244,7 @@ const nextSongBtn = document.getElementById('nextSong');
 const loading = document.getElementById('loading');
 const playStatus = document.getElementById('playStatus');
 
-const songNames = {
-  bgm1: "凤凰花开的路口",
-  bgm2: "See You Again"
-};
+const songNames = { bgm1: "凤凰花开的路口", bgm2: "See You Again" };
 const AUTO_SLIDE_INTERVAL = 4500;
 
 let index = 0;
@@ -254,45 +252,43 @@ let timer = null;
 let isMute = true;
 let currentAudio = bgm1;
 let userInteracted = false;
-
-// 缓存已加载的图片URL
 const loadedImages = new Set();
-// 轮播锁：防止未加载完成就切换
 let isSliding = false;
 
-// 实时更新状态栏
+// 更新状态栏
 function updateStatus() {
   if (!userInteracted) {
     playStatus.textContent = '点击页面播放音乐';
     return;
   }
-  if (isMute) {
-    playStatus.textContent = '🔇 静音';
-  } else {
-    playStatus.textContent = `正在播放 ${songNames[currentAudio.id]}`;
-  }
+  playStatus.textContent = isMute ? '🔇 静音' : `正在播放 ${songNames[currentAudio.id]}`;
 }
 
-// 预加载图片 Promise
-function loadImage(url) {
+// 提取图片地址
+function getPhotoUrl(el) {
+  return el.style.backgroundImage.replace(/url\(["']?(.*?)["']?\)/, '$1');
+}
+
+// 图片加载：带超时，卡死自动放行
+function loadImage(url, timeout = 3000) {
   if (loadedImages.has(url)) return Promise.resolve();
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const img = new Image();
-    img.src = url;
+    let timer = setTimeout(resolve, timeout);
     img.onload = () => {
+      clearTimeout(timer);
       loadedImages.add(url);
       resolve();
     };
-    img.onerror = resolve; // 加载失败也放行，避免卡死
+    img.onerror = () => {
+      clearTimeout(timer);
+      resolve();
+    };
+    img.src = url;
   });
 }
 
-// 从背景图提取URL
-function getPhotoUrl(photoEl) {
-  return photoEl.style.backgroundImage.replace(/url\(["']?(.*?)["']?\)/, '$1');
-}
-
-// 播放音频（边加载边播放）
+// 音频播放：纯流式，有缓冲就播放
 function playAudio() {
   if (!userInteracted) return;
   currentAudio.muted = isMute;
@@ -307,49 +303,50 @@ function playAudio() {
   updateStatus();
 }
 
-// 安全轮播：必须等下一张加载完成
+// 轮播核心：只等下一张，后台懒加载后续图片
 async function slide() {
   if (isSliding) return;
   isSliding = true;
 
-  const nextIndex = (index + 1) % photos.length;
-  const nextUrl = getPhotoUrl(photos[nextIndex]);
-  
-  // 等待下一张加载完成
-  await loadImage(nextUrl);
+  const nextIdx = (index + 1) % photos.length;
+  await loadImage(getPhotoUrl(photos[nextIdx]));
 
-  // 切换图片
   photos[index].classList.remove('active');
-  index = nextIndex;
+  index = nextIdx;
   photos[index].classList.add('active');
 
-  // 预加载下下张
-  const preloadIndex = (index + 1) % photos.length;
-  loadImage(getPhotoUrl(photos[preloadIndex]));
+  // 懒加载后面2张，不抢占网络
+  setTimeout(() => {
+    loadImage(getPhotoUrl(photos[(index + 1) % photos.length]));
+    loadImage(getPhotoUrl(photos[(index + 2) % photos.length]));
+  }, 500);
 
   isSliding = false;
 }
 
-// 启动自动轮播
 function startSlide() {
   clearInterval(timer);
   timer = setInterval(slide, AUTO_SLIDE_INTERVAL);
 }
 
-// 初始化
+// 初始化：极速进入页面，不等待全部资源
 async function init() {
-  // 加载第一张
+  // 只强制加载当前第一张，其余懒加载
   await loadImage(getPhotoUrl(photos[0]));
-  // 预加载第二张
-  loadImage(getPhotoUrl(photos[1]));
-  
-  // 显示页面
-  loading.classList.add('hidden');
-  startSlide();
-  updateStatus();
+  // 1.2秒直接关闭加载页，不再长时间等待
+  setTimeout(() => {
+    loading.classList.add('hidden');
+    startSlide();
+    updateStatus();
+  }, 1200);
+
+  // 后台分批预加载前5张常用图，提升开头体验
+  for (let i = 1; i <= 4; i++) {
+    setTimeout(() => loadImage(getPhotoUrl(photos[i])), i * 200);
+  }
 }
 
-// 首次交互播放
+// 首次点击立刻解锁音频
 document.addEventListener('click', () => {
   if (!userInteracted) {
     userInteracted = true;
@@ -359,29 +356,30 @@ document.addEventListener('click', () => {
   }
 }, { once: true });
 
-// 按钮控制
+// 上一张
 prevBtn.onclick = async (e) => {
   e.stopPropagation();
   if (isSliding) return;
   isSliding = true;
 
-  const prevIndex = (index - 1 + photos.length) % photos.length;
-  await loadImage(getPhotoUrl(photos[prevIndex]));
+  const prevIdx = (index - 1 + photos.length) % photos.length;
+  await loadImage(getPhotoUrl(photos[prevIdx]));
 
   photos[index].classList.remove('active');
-  index = prevIndex;
+  index = prevIdx;
   photos[index].classList.add('active');
-  
   isSliding = false;
   startSlide();
 };
 
+// 下一张
 nextBtn.onclick = (e) => {
   e.stopPropagation();
   slide();
   startSlide();
 };
 
+// 静音切换
 musicBtn.onclick = (e) => {
   e.stopPropagation();
   isMute = !isMute;
@@ -389,6 +387,7 @@ musicBtn.onclick = (e) => {
   playAudio();
 };
 
+// 切歌
 nextSongBtn.onclick = (e) => {
   e.stopPropagation();
   currentAudio.pause();
