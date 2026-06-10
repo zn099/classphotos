@@ -2,14 +2,11 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<!-- 移动端核心适配：禁止缩放、优化视口、微信兼容 -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
-<!-- 微信X5内核优化 -->
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="renderer" content="webkit">
-<!-- CDN预连接，提前建立链接 -->
 <link rel="preconnect" href="cdn.jsdelivr.net" crossorigin>
 <meta http-equiv="Cache-Control" content="public, max-age=31536000, immutable">
 <title>致我们的青春</title>
@@ -24,12 +21,10 @@ body {
   overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
   user-select: none;
-  /* 移动端防闪烁 */
   -webkit-font-smoothing: antialiased;
   -webkit-backface-visibility: hidden;
 }
 
-/* 加载页 */
 .loading {
   position: fixed;
   top: 0;
@@ -66,7 +61,6 @@ body {
   opacity: 0;
   pointer-events: none;
 }
-/* 新增进度条样式，不改变原有布局 */
 .loading-progress {
   width: 200px;
   height: 2px;
@@ -196,7 +190,6 @@ body {
 <div class="loading" id="loading">
   <div class="loading-dot"></div>
   <div class="loading-text">回忆加载中</div>
-  <!-- 新增进度条 -->
   <div class="loading-progress"><div class="loading-progress-bar" id="progressBar"></div></div>
   <div class="loading-percent" id="percentText">0%</div>
 </div>
@@ -207,7 +200,7 @@ body {
 </div>
 
 <div class="slider" id="slider">
-  <!-- 所有photo容器保留，但初始src为空，按需填充 -->
+  <!-- 所有图片容器，data-src 存储真实地址 -->
   <div class="photo active"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.1.webp" alt=""></div>
   <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.2.webp" alt=""></div>
   <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.3.webp" alt=""></div>
@@ -263,21 +256,19 @@ body {
   <button class="btn" id="next">▶</button>
 </div>
 
-<!-- 音频改用可靠的mp3格式，preload="auto" 以便预加载 -->
-<audio id="bgm1" loop preload="auto" crossorigin="anonymous">
+<!-- 音频使用 preload="metadata"，仅加载头信息，不下载完整歌曲 -->
+<audio id="bgm1" loop preload="metadata" crossorigin="anonymous">
   <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/Chinesesong.mp3" type="audio/mpeg">
 </audio>
-<audio id="bgm2" loop preload="auto" crossorigin="anonymous">
+<audio id="bgm2" loop preload="metadata" crossorigin="anonymous">
   <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/seeyouagain.mp3" type="audio/mpeg">
 </audio>
 
 <script>
-// ----------------------------- 图片按需加载 + 进度管理 -----------------------------
+// ----------------------------- 图片预加载 + 进度管理 (音乐不再预加载) -----------------------------
 const photos = document.querySelectorAll('.photo');
 const totalImages = photos.length;
-let loadedCount = 0;          // 已成功加载的图片数
-let musicReady = { bgm1: false, bgm2: false };
-let totalAssets = totalImages + 2;   // 图片 + 两首音乐
+let loadedCount = 0;
 let loadCompleted = false;
 
 const progressBar = document.getElementById('progressBar');
@@ -285,7 +276,7 @@ const percentText = document.getElementById('percentText');
 const loadingDiv = document.getElementById('loading');
 
 function updateProgress() {
-  let percent = Math.floor((loadedCount + (musicReady.bgm1 ? 1 : 0) + (musicReady.bgm2 ? 1 : 0)) / totalAssets * 100);
+  let percent = Math.floor((loadedCount / totalImages) * 100);
   percent = Math.min(100, percent);
   progressBar.style.width = percent + '%';
   percentText.innerText = percent + '%';
@@ -298,16 +289,14 @@ function updateProgress() {
   }
 }
 
-// 加载单张图片（仅当需要时调用）
+// 加载单张图片
 function loadImage(imgElement, url) {
   return new Promise((resolve) => {
     if (imgElement.src && imgElement.src === url && imgElement.complete) {
       resolve();
       return;
     }
-    const timer = setTimeout(() => {
-      resolve(); // 超时也继续
-    }, 5000);
+    const timer = setTimeout(() => resolve(), 5000);
     imgElement.onload = () => {
       clearTimeout(timer);
       resolve();
@@ -320,7 +309,7 @@ function loadImage(imgElement, url) {
   });
 }
 
-// 预加载全部图片（并发控制，避免手机端过多请求）
+// 并发预加载全部图片（3个并发，手机友好）
 async function preloadAllImagesWithConcurrency(concurrency = 3) {
   const imgElements = Array.from(document.querySelectorAll('.photo img'));
   const urls = imgElements.map(img => img.getAttribute('data-src'));
@@ -338,7 +327,6 @@ async function preloadAllImagesWithConcurrency(concurrency = 3) {
         active++;
         const img = imgElements[idx];
         const url = urls[idx];
-        // 直接加载，每加载完一张更新进度
         loadImage(img, url).finally(() => {
           loadedCount++;
           updateProgress();
@@ -351,36 +339,13 @@ async function preloadAllImagesWithConcurrency(concurrency = 3) {
   });
 }
 
-// 音乐预加载（通过fetch+blob实现高兼容、强制缓存）
-async function preloadMusicAsBlob(url, songId) {
-  try {
-    const response = await fetch(url, { cache: "force-cache", mode: "cors" });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const blob = await response.blob();
-    const blobUrl = URL.createObjectURL(blob);
-    // 更新audio元素src
-    const audioEl = document.getElementById(songId);
-    audioEl.src = blobUrl;
-    audioEl.load();
-    musicReady[songId] = true;
-    updateProgress();
-    return blobUrl;
-  } catch (err) {
-    console.warn(`${songId} 预加载失败，使用原始URL:`, err);
-    // 降级：直接使用原始URL，但标记为已加载（防止卡进度）
-    musicReady[songId] = true;
-    updateProgress();
-    return null;
-  }
-}
-
 // ----------------------------- 轮播与音频控制 -----------------------------
 let currentIndex = 0;
 let autoTimer = null;
 let isMuted = true;
 let userInteracted = false;
 let currentAudio = document.getElementById('bgm1');
-let isSliding = false;   // 防止快速切换
+let isSliding = false;
 
 const playStatusSpan = document.getElementById('playStatus');
 const musicBtnUI = document.getElementById('musicBtn');
@@ -409,7 +374,6 @@ function applyAudioState() {
     currentAudio.muted = false;
     currentAudio.play().catch(err => {
       console.warn("自动播放失败:", err);
-      // 若失败则回退静音
       isMuted = true;
       musicBtnUI.textContent = '🔇';
       updateStatusText();
@@ -420,8 +384,8 @@ function applyAudioState() {
   updateStatusText();
 }
 
-// 切换图片（核心：只加载需要的图片，不卡顿）
-async function switchToPhoto(newIndex, direction = 'next') {
+// 切换图片（按需加载，且预加载相邻图片）
+async function switchToPhoto(newIndex) {
   if (isSliding) return;
   isSliding = true;
 
@@ -429,71 +393,57 @@ async function switchToPhoto(newIndex, direction = 'next') {
   const targetImg = targetPhoto.querySelector('img');
   const targetUrl = targetImg.getAttribute('data-src');
   
-  // 确保目标图片已加载（如果未加载则等待）
   if (!targetImg.src || targetImg.src !== targetUrl) {
     await loadImage(targetImg, targetUrl);
   }
   
-  // 移除当前活跃
   photos[currentIndex].classList.remove('active');
   currentIndex = newIndex;
   photos[currentIndex].classList.add('active');
   
-  // 智能预加载：提前加载下一张（轮播方向）
+  // 预加载下一张和上一张
   const nextIndex = (currentIndex + 1) % totalImages;
   const nextPhoto = photos[nextIndex];
   const nextImg = nextPhoto.querySelector('img');
   const nextUrl = nextImg.getAttribute('data-src');
-  if (!nextImg.src || nextImg.src !== nextUrl) {
-    // 异步预加载，不阻塞
-    loadImage(nextImg, nextUrl);
-  }
-  // 再预加载前一张（可选）
+  if (!nextImg.src || nextImg.src !== nextUrl) loadImage(nextImg, nextUrl);
+  
   const prevIndex = (currentIndex - 1 + totalImages) % totalImages;
   const prevPhoto = photos[prevIndex];
   const prevImg = prevPhoto.querySelector('img');
   const prevUrl = prevImg.getAttribute('data-src');
-  if (!prevImg.src || prevImg.src !== prevUrl) {
-    loadImage(prevImg, prevUrl);
-  }
+  if (!prevImg.src || prevImg.src !== prevUrl) loadImage(prevImg, prevUrl);
   
   isSliding = false;
 }
 
-// 下一张
 async function nextPhoto() {
   if (isSliding) return;
   const newIdx = (currentIndex + 1) % totalImages;
-  await switchToPhoto(newIdx, 'next');
+  await switchToPhoto(newIdx);
   resetAutoTimer();
 }
 
-// 上一张
 async function prevPhoto() {
   if (isSliding) return;
   const newIdx = (currentIndex - 1 + totalImages) % totalImages;
-  await switchToPhoto(newIdx, 'prev');
+  await switchToPhoto(newIdx);
   resetAutoTimer();
 }
 
 function resetAutoTimer() {
   if (autoTimer) clearInterval(autoTimer);
-  autoTimer = setInterval(() => {
-    nextPhoto();
-  }, 4500);
+  autoTimer = setInterval(() => { nextPhoto(); }, 4500);
 }
 
 function startSlide() {
   if (autoTimer) clearInterval(autoTimer);
-  autoTimer = setInterval(() => {
-    nextPhoto();
-  }, 4500);
+  autoTimer = setInterval(() => { nextPhoto(); }, 4500);
 }
 
 // 音乐控制
 function toggleMute() {
   if (!userInteracted) {
-    // 尚未交互，触发一次解锁
     userInteracted = true;
     isMuted = false;
     musicBtnUI.textContent = '🔊';
@@ -517,7 +467,6 @@ function switchSong() {
   currentAudio.currentTime = 0;
   currentAudio = newAudio;
   if (wasPlaying || !isMuted) {
-    currentAudio.currentTime = 0;
     currentAudio.play().catch(e => console.warn);
   }
   updateStatusText();
@@ -530,14 +479,13 @@ function unlockAudioHandler() {
     isMuted = false;
     musicBtnUI.textContent = '🔊';
     applyAudioState();
-    // 移除监听，只触发一次
     document.removeEventListener('touchstart', unlockAudioHandler);
     document.removeEventListener('click', unlockAudioHandler);
   }
 }
 document.addEventListener('touchstart', unlockAudioHandler, { once: true, passive: true });
 document.addEventListener('click', unlockAudioHandler, { once: true });
-// 额外保证按钮也能触发解锁（但避免重复）
+
 [musicBtnUI, prevBtnUI, nextBtnUI, nextSongBtnUI].forEach(btn => {
   btn.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -550,48 +498,22 @@ document.addEventListener('click', unlockAudioHandler, { once: true });
   });
 });
 
-// 绑定按钮事件
-musicBtnUI.onclick = (e) => {
-  e.stopPropagation();
-  toggleMute();
-};
-prevBtnUI.onclick = (e) => {
-  e.stopPropagation();
-  prevPhoto();
-};
-nextBtnUI.onclick = (e) => {
-  e.stopPropagation();
-  nextPhoto();
-};
-nextSongBtnUI.onclick = (e) => {
-  e.stopPropagation();
-  switchSong();
-};
+musicBtnUI.onclick = (e) => { e.stopPropagation(); toggleMute(); };
+prevBtnUI.onclick = (e) => { e.stopPropagation(); prevPhoto(); };
+nextBtnUI.onclick = (e) => { e.stopPropagation(); nextPhoto(); };
+nextSongBtnUI.onclick = (e) => { e.stopPropagation(); switchSong(); };
 
-// ----------------------------- 初始化流程 -----------------------------
+// ----------------------------- 初始化 -----------------------------
 async function init() {
-  // 首先显示初始图片（第一个photo里img的data-src转src）
   const firstImg = photos[0].querySelector('img');
   const firstUrl = firstImg.getAttribute('data-src');
   await loadImage(firstImg, firstUrl);
   loadedCount = 1;
   updateProgress();
-  
-  // 并发预加载剩余图片（限制3并发，手机友好）
-  preloadAllImagesWithConcurrency(3);
-  
-  // 预加载两首音乐（使用blob方式，兼容且提速）
-  Promise.all([
-    preloadMusicAsBlob("https://cdn.jsdelivr.net/gh/zn099/classphotos/Chinesesong.mp3", "bgm1"),
-    preloadMusicAsBlob("https://cdn.jsdelivr.net/gh/zn099/classphotos/seeyouagain.mp3", "bgm2")
-  ]).then(() => {
-    // 音乐预加载完成，更新进度已在内部调用
-  });
-  
-  // 预加载完成后自动隐藏loading并开始轮播（由updateProgress触发）
+  preloadAllImagesWithConcurrency(3); // 后台继续加载其余图片
 }
 
-// 花瓣动画（与原效果一致）
+// 花瓣动画
 setTimeout(() => {
   setInterval(() => {
     const p = document.createElement('div');
