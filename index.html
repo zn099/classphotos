@@ -136,7 +136,7 @@ body {
   display: grid;
   place-items: center;
   backdrop-filter: blur(6px);
-  transition: all 0.2;
+  transition: all 0.2s;
 }
 .btn:active {
   background: rgba(255,255,255,0.2);
@@ -159,11 +159,10 @@ body {
 </head>
 
 <body>
-
 <!-- 加载提示 -->
 <div class="loading" id="loading">
   <div class="loading-dot"></div>
-  <div class="loading-text" id="loadingText">正在加载青春回忆...</div>
+  <div class="loading-text" id="loadingText">正在加载...</div>
 </div>
 
 <div class="head-text">
@@ -177,7 +176,6 @@ body {
   <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.3.webp)"></div>
   <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.4.webp)"></div>
   <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.5.webp)"></div>
-
   <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p1.webp)"></div>
   <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p2.webp)"></div>
   <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p3.webp)"></div>
@@ -229,7 +227,7 @@ body {
   <button class="btn" id="next">▶</button>
 </div>
 
-<!-- 音频标签（已补全闭合） -->
+<!-- 音频 -->
 <audio id="bgm1" loop preload="auto" muted>
   <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/Chinesesong.m4a" type="audio/mp4">
 
@@ -249,13 +247,10 @@ const loading = document.getElementById('loading');
 const loadingText = document.getElementById('loadingText');
 const playStatus = document.getElementById('playStatus');
 
-// 歌曲名称配置（可自行修改）
 const songNames = {
   bgm1: "凤凰花开的路口",
   bgm2: "See You Again"
 };
-
-// 自动轮播间隔（固定4.5秒，永不改变）
 const AUTO_SLIDE_INTERVAL = 4500;
 
 let index = 0;
@@ -265,65 +260,54 @@ let currentAudio = bgm1;
 let secondSongLoaded = false;
 let userInteracted = false;
 
-// ========== 核心：更新播放状态显示 ==========
+// 更新底部播放状态
 function updatePlayStatus() {
   if (!userInteracted) {
     playStatus.innerText = "点击页面播放音乐";
     return;
   }
-  
-  if (isMute) {
-    playStatus.innerText = "🔇 静音";
-  } else {
-    const currentSongId = currentAudio.id;
-    playStatus.innerText = `播放 ${songNames[currentSongId]}`;
-  }
+  playStatus.innerText = isMute ? "🔇 静音" : `播放 ${songNames[currentAudio.id]}`;
 }
 
-// ========== 预加载第1张图片 ==========
+// 加载第一张图片
 function preloadFirstImage() {
-  return new Promise((resolve) => {
-    loadingText.innerText = "正在加载第一张照片...";
-    const firstImg = new Image();
-    firstImg.src = photos[0].style.backgroundImage.replace(/url\(["']?(.*?)["']?\)/, '$1');
-    firstImg.onload = firstImg.onerror = () => resolve();
-    setTimeout(resolve, 1500); // 图片加载超时1.5秒
+  return new Promise(resolve => {
+    loadingText.innerText = "加载照片中...";
+    const img = new Image();
+    img.src = photos[0].style.backgroundImage.replace(/url\(["']?(.*?)["']?\)/, '$1');
+    img.onload = img.onerror = resolve;
+    setTimeout(resolve, 1500);
   });
 }
 
-// ========== 强制预加载第一首中文歌（必须完成） ==========
-function preloadFirstAudio() {
-  return new Promise((resolve) => {
-    loadingText.innerText = "正在加载背景音乐...";
-    
-    // 监听音乐完全可以播放事件
-    bgm1.oncanplaythrough = () => {
-      loadingText.innerText = "准备就绪...";
+// 核心：等待第一首音频完全加载就绪
+function preloadMainAudio() {
+  return new Promise(resolve => {
+    loadingText.innerText = "加载背景音乐中...";
+    let done = false;
+
+    function finishLoad() {
+      if (done) return;
+      done = true;
+      loadingText.innerText = "全部加载完成";
       resolve();
-    };
-    
-    // 音乐加载失败时也继续
-    bgm1.onerror = () => {
-      loadingText.innerText = "音乐加载失败，继续进入...";
-      resolve();
-    };
-    
-    // 超时保护：3秒后无论如何都继续
-    setTimeout(() => {
-      loadingText.innerText = "准备就绪...";
-      resolve();
-    }, 3000);
+    }
+
+    // 音频可流畅播放
+    bgm1.oncanplaythrough = finishLoad;
+    // 加载失败兜底
+    bgm1.onerror = finishLoad;
+    // 最长等待5秒，防止卡死
+    setTimeout(finishLoad, 5000);
   });
 }
 
-// ========== 统一播放控制函数 ==========
+// 音频播放统一处理
 function playAudio() {
   if (!userInteracted) return;
-  
   currentAudio.muted = isMute;
   if (!isMute) {
     currentAudio.play().catch(() => {
-      // 播放失败时自动回退到静音状态
       isMute = true;
       musicBtn.innerText = "🔇";
       updatePlayStatus();
@@ -334,105 +318,89 @@ function playAudio() {
   updatePlayStatus();
 }
 
-// ========== 加载完成后启动 ==========
-async function init() {
-  // 顺序加载：先图片 → 再音乐 → 全部完成后显示
-  await preloadFirstImage();
-  await preloadFirstAudio();
-  
-  // 隐藏加载提示
-  loading.classList.add('hidden');
-  
-  // 开始自动轮播
-  startAutoSlide();
-  updatePlayStatus();
-  
-  // 监听用户第一次交互（点击任意位置）
-  document.addEventListener('click', function firstInteraction() {
-    if (!userInteracted) {
-      userInteracted = true;
-      isMute = false;
-      musicBtn.innerText = "🔊";
-      playAudio();
-      document.removeEventListener('click', firstInteraction);
-    }
-  }, { once: true });
-}
-
-// ========== 轮播逻辑（每次只预加载下1张） ==========
+// 轮播切换图片 + 预加载下一张
 function slide() {
   photos[index].classList.remove('active');
   index = (index + 1) % photos.length;
   photos[index].classList.add('active');
-  
-  // 只预加载下一张图片，不预加载更多
+
   const nextIndex = (index + 1) % photos.length;
   const tempImg = new Image();
   tempImg.src = photos[nextIndex].style.backgroundImage.replace(/url\(["']?(.*?)["']?\)/, '$1');
 }
 
 function startAutoSlide() {
-  // 确保定时器唯一，避免多个定时器同时运行
   if (timer) clearInterval(timer);
   timer = setInterval(slide, AUTO_SLIDE_INTERVAL);
 }
 
-// ========== 按钮翻页逻辑（不改变轮播速率） ==========
-prevBtn.onclick = (e) => {
+// 初始化：图片 + 音频 全部加载完毕，再开启轮播
+async function init() {
+  await preloadFirstImage();
+  await preloadMainAudio();
+
+  // 关闭加载遮罩，正式进入页面并启动轮播
+  loading.classList.add('hidden');
+  startAutoSlide();
+  updatePlayStatus();
+
+  // 全局点击触发播放（兼容浏览器自动播放策略）
+  const pageClick = () => {
+    if (!userInteracted) {
+      userInteracted = true;
+      isMute = false;
+      musicBtn.innerText = "🔊";
+      playAudio();
+      document.removeEventListener('click', pageClick);
+    }
+  };
+  document.addEventListener('click', pageClick);
+}
+
+// 上一张按钮
+prevBtn.onclick = e => {
   e.stopPropagation();
-  // 切换到上一张
   photos[index].classList.remove('active');
   index = (index - 1 + photos.length) % photos.length;
   photos[index].classList.add('active');
-  
-  // 预加载下一张
+
   const nextIndex = (index + 1) % photos.length;
   const tempImg = new Image();
   tempImg.src = photos[nextIndex].style.backgroundImage.replace(/url\(["']?(.*?)["']?\)/, '$1');
-  
-  // 重启定时器，保持4.5秒间隔（速率不变）
   startAutoSlide();
 };
 
-nextBtn.onclick = (e) => {
+// 下一张按钮
+nextBtn.onclick = e => {
   e.stopPropagation();
-  // 切换到下一张
   slide();
-  // 重启定时器，保持4.5秒间隔（速率不变）
   startAutoSlide();
 };
 
-// ========== 音乐控制 ==========
-musicBtn.onclick = (e) => {
+// 静音/播放按钮
+musicBtn.onclick = e => {
   e.stopPropagation();
   isMute = !isMute;
   musicBtn.innerText = isMute ? "🔇" : "🔊";
   playAudio();
 };
 
-// ========== 切歌逻辑（点击时才加载第二首） ==========
-nextSongBtn.onclick = (e) => {
+// 切歌按钮
+nextSongBtn.onclick = e => {
   e.stopPropagation();
-  
-  // 暂停当前歌曲并重置进度
   currentAudio.pause();
   currentAudio.currentTime = 0;
-  
-  // 切换到下一首
   currentAudio = currentAudio === bgm1 ? bgm2 : bgm1;
-  
-  // 第一次切到第二首时手动加载
+
   if (currentAudio === bgm2 && !secondSongLoaded) {
     bgm2.load();
     secondSongLoaded = true;
   }
-  
-  // 保持当前静音/播放状态
   currentAudio.muted = isMute;
   playAudio();
 };
 
-// ========== 花瓣动画（延迟1秒启动，不抢占首屏资源） ==========
+// 花瓣动画
 setTimeout(() => {
   function petal() {
     const p = document.createElement('div');
@@ -445,10 +413,9 @@ setTimeout(() => {
     document.body.appendChild(p);
     setTimeout(() => p.remove(), 13000);
   }
-  setInterval(petal, 1200); // 降低生成频率，减少CPU占用
+  setInterval(petal, 1200);
 }, 1000);
 
-// DOM加载完成后立即启动
 document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
