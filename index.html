@@ -66,26 +66,6 @@ body {
   opacity: 0;
   pointer-events: none;
 }
-/* 新增进度条样式，不改变原有布局 */
-.loading-progress {
-  width: 200px;
-  height: 2px;
-  background: rgba(255,255,255,0.2);
-  border-radius: 4px;
-  margin-top: 24px;
-  overflow: hidden;
-}
-.loading-progress-bar {
-  width: 0%;
-  height: 100%;
-  background: #f0a3be;
-  transition: width 0.2s ease;
-}
-.loading-percent {
-  font-size: 12px;
-  margin-top: 12px;
-  opacity: 0.7;
-}
 
 .head-text {
   position: fixed;
@@ -117,12 +97,14 @@ body {
   position: relative;
   overflow: hidden;
 }
+/* 改用img标签，修复手机黑屏、渲染问题 */
 .photo {
   position: absolute;
   width: 100%;
   height: 100%;
   opacity: 0;
   transition: opacity 0.4s ease-out;
+  /* 移动端硬件加速，防黑屏 */
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
 }
@@ -196,9 +178,6 @@ body {
 <div class="loading" id="loading">
   <div class="loading-dot"></div>
   <div class="loading-text">回忆加载中</div>
-  <!-- 新增进度条 -->
-  <div class="loading-progress"><div class="loading-progress-bar" id="progressBar"></div></div>
-  <div class="loading-percent" id="percentText">0%</div>
 </div>
 
 <div class="head-text">
@@ -207,51 +186,50 @@ body {
 </div>
 
 <div class="slider" id="slider">
-  <!-- 所有photo容器保留，但初始src为空，按需填充 -->
-  <div class="photo active"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.1.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.2.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.3.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.4.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.5.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p1.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p2.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p3.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p3.5.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p4.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p4.5.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p5.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p6.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p7.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p8.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p9.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p10.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p11.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p12.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p12.4.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p12.8.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p13.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p14.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p15.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p16.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p16.5.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p17.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p18.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p19.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p20.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p21.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p22.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p23.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p24.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p24.5.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p25.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p26.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p27.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p28.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p28.5.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p29.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p30.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p31.webp" alt=""></div>
-  <div class="photo"><img data-src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p32.webp" alt=""></div>
+  <div class="photo active"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.1.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.2.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.3.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.4.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.5.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p1.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p2.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p3.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p3.5.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p4.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p4.5.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p5.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p6.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p7.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p8.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p9.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p10.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p11.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p12.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p12.4.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p12.8.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p13.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p14.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p15.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p16.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p16.5.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p17.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p18.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p19.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p20.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p21.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p22.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p23.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p24.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p24.5.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p25.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p26.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p27.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p28.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p28.5.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p29.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p30.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p31.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p32.webp" alt=""></div>
 </div>
 
 <div class="play-status" id="playStatus">点击页面播放音乐</div>
@@ -263,335 +241,173 @@ body {
   <button class="btn" id="next">▶</button>
 </div>
 
-<!-- 音频改用可靠的mp3格式，preload="auto" 以便预加载 -->
-<audio id="bgm1" loop preload="auto" crossorigin="anonymous">
-  <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/Chinesesong.mp3" type="audio/mpeg">
-</audio>
-<audio id="bgm2" loop preload="auto" crossorigin="anonymous">
-  <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/seeyouagain.mp3" type="audio/mpeg">
-</audio>
+<!-- 移动端音频优化：preload=none 减少初始流量，微信兼容优先 -->
+<audio id="bgm1" loop preload="none">
+  <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/Chinesesong.m4a" type="audio/mpeg">
+
+<audio id="bgm2" loop preload="none">
+  <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/seeyouagain.m4a" type="audio/mpeg">
+
 
 <script>
-// ----------------------------- 图片按需加载 + 进度管理 -----------------------------
 const photos = document.querySelectorAll('.photo');
-const totalImages = photos.length;
-let loadedCount = 0;          // 已成功加载的图片数
-let musicReady = { bgm1: false, bgm2: false };
-let totalAssets = totalImages + 2;   // 图片 + 两首音乐
-let loadCompleted = false;
-
-const progressBar = document.getElementById('progressBar');
-const percentText = document.getElementById('percentText');
-const loadingDiv = document.getElementById('loading');
-
-function updateProgress() {
-  let percent = Math.floor((loadedCount + (musicReady.bgm1 ? 1 : 0) + (musicReady.bgm2 ? 1 : 0)) / totalAssets * 100);
-  percent = Math.min(100, percent);
-  progressBar.style.width = percent + '%';
-  percentText.innerText = percent + '%';
-  if (percent === 100 && !loadCompleted) {
-    loadCompleted = true;
-    setTimeout(() => {
-      loadingDiv.classList.add('hidden');
-      startSlide();
-    }, 300);
-  }
-}
-
-// 加载单张图片（仅当需要时调用）
-function loadImage(imgElement, url) {
-  return new Promise((resolve) => {
-    if (imgElement.src && imgElement.src === url && imgElement.complete) {
-      resolve();
-      return;
-    }
-    const timer = setTimeout(() => {
-      resolve(); // 超时也继续
-    }, 5000);
-    imgElement.onload = () => {
-      clearTimeout(timer);
-      resolve();
-    };
-    imgElement.onerror = () => {
-      clearTimeout(timer);
-      resolve();
-    };
-    imgElement.src = url;
-  });
-}
-
-// 预加载全部图片（并发控制，避免手机端过多请求）
-async function preloadAllImagesWithConcurrency(concurrency = 3) {
-  const imgElements = Array.from(document.querySelectorAll('.photo img'));
-  const urls = imgElements.map(img => img.getAttribute('data-src'));
-  const indexQueue = Array.from({ length: urls.length }, (_, i) => i);
-  let active = 0;
-
-  return new Promise((resolve) => {
-    function next() {
-      if (indexQueue.length === 0 && active === 0) {
-        resolve();
-        return;
-      }
-      while (active < concurrency && indexQueue.length > 0) {
-        const idx = indexQueue.shift();
-        active++;
-        const img = imgElements[idx];
-        const url = urls[idx];
-        // 直接加载，每加载完一张更新进度
-        loadImage(img, url).finally(() => {
-          loadedCount++;
-          updateProgress();
-          active--;
-          next();
-        });
-      }
-    }
-    next();
-  });
-}
-
-// 音乐预加载（通过fetch+blob实现高兼容、强制缓存）
-async function preloadMusicAsBlob(url, songId) {
-  try {
-    const response = await fetch(url, { cache: "force-cache", mode: "cors" });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const blob = await response.blob();
-    const blobUrl = URL.createObjectURL(blob);
-    // 更新audio元素src
-    const audioEl = document.getElementById(songId);
-    audioEl.src = blobUrl;
-    audioEl.load();
-    musicReady[songId] = true;
-    updateProgress();
-    return blobUrl;
-  } catch (err) {
-    console.warn(`${songId} 预加载失败，使用原始URL:`, err);
-    // 降级：直接使用原始URL，但标记为已加载（防止卡进度）
-    musicReady[songId] = true;
-    updateProgress();
-    return null;
-  }
-}
-
-// ----------------------------- 轮播与音频控制 -----------------------------
-let currentIndex = 0;
-let autoTimer = null;
-let isMuted = true;
-let userInteracted = false;
-let currentAudio = document.getElementById('bgm1');
-let isSliding = false;   // 防止快速切换
-
-const playStatusSpan = document.getElementById('playStatus');
-const musicBtnUI = document.getElementById('musicBtn');
-const prevBtnUI = document.getElementById('prev');
-const nextBtnUI = document.getElementById('next');
-const nextSongBtnUI = document.getElementById('nextSong');
+const imgs = document.querySelectorAll('.photo img');
+const bgm1 = document.getElementById('bgm1');
+const bgm2 = document.getElementById('bgm2');
+const musicBtn = document.getElementById('musicBtn');
+const prevBtn = document.getElementById('prev');
+const nextBtn = document.getElementById('next');
+const nextSongBtn = document.getElementById('nextSong');
+const loading = document.getElementById('loading');
+const playStatus = document.getElementById('playStatus');
 
 const songNames = { bgm1: "凤凰花开的路口", bgm2: "See You Again" };
+const AUTO_SLIDE_INTERVAL = 4500;
 
-function updateStatusText() {
+let index = 0;
+let timer = null;
+let isMute = true;
+let currentAudio = bgm1;
+let userInteracted = false;
+const loadedImages = new Set();
+let isSliding = false;
+
+// 更新状态栏
+function updateStatus() {
   if (!userInteracted) {
-    playStatusSpan.textContent = '点击页面播放音乐';
+    playStatus.textContent = '点击页面播放音乐';
     return;
   }
-  if (isMuted) {
-    playStatusSpan.textContent = `🔇 静音 · ${songNames[currentAudio.id]}`;
-  } else {
-    playStatusSpan.textContent = `🎧 正在播放 · ${songNames[currentAudio.id]} 🎧`;
-  }
+  playStatus.textContent = isMute ? '🔇 静音' : `正在播放 ${songNames[currentAudio.id]}`;
 }
 
-// 播放或暂停音乐（根据静音状态）
-function applyAudioState() {
+// 图片加载：单请求+超时，适配手机低并发
+function loadImage(imgEl, timeout = 2500) {
+  const url = imgEl.src;
+  if (loadedImages.has(url)) return Promise.resolve();
+  return new Promise(resolve => {
+    let timer = setTimeout(resolve, timeout);
+    imgEl.onload = () => {
+      clearTimeout(timer);
+      loadedImages.add(url);
+      resolve();
+    };
+    imgEl.onerror = () => {
+      clearTimeout(timer);
+      resolve();
+    };
+    // 触发加载
+    imgEl.src = url;
+  });
+}
+
+// 音频播放：微信专属兼容
+function playAudio() {
   if (!userInteracted) return;
-  if (!isMuted) {
-    currentAudio.muted = false;
-    currentAudio.play().catch(err => {
-      console.warn("自动播放失败:", err);
-      // 若失败则回退静音
-      isMuted = true;
-      musicBtnUI.textContent = '🔇';
-      updateStatusText();
+  currentAudio.muted = isMute;
+  if (!isMute) {
+    // 微信内核兜底重试
+    currentAudio.play().catch(() => {
+      currentAudio.load();
+      currentAudio.play().catch(() => {
+        isMute = true;
+        musicBtn.textContent = '🔇';
+      });
     });
   } else {
     currentAudio.pause();
   }
-  updateStatusText();
+  updateStatus();
 }
 
-// 切换图片（核心：只加载需要的图片，不卡顿）
-async function switchToPhoto(newIndex, direction = 'next') {
+// 轮播：仅预载下一张，严格控制并发
+async function slide() {
   if (isSliding) return;
   isSliding = true;
 
-  const targetPhoto = photos[newIndex];
-  const targetImg = targetPhoto.querySelector('img');
-  const targetUrl = targetImg.getAttribute('data-src');
-  
-  // 确保目标图片已加载（如果未加载则等待）
-  if (!targetImg.src || targetImg.src !== targetUrl) {
-    await loadImage(targetImg, targetUrl);
-  }
-  
-  // 移除当前活跃
-  photos[currentIndex].classList.remove('active');
-  currentIndex = newIndex;
-  photos[currentIndex].classList.add('active');
-  
-  // 智能预加载：提前加载下一张（轮播方向）
-  const nextIndex = (currentIndex + 1) % totalImages;
-  const nextPhoto = photos[nextIndex];
-  const nextImg = nextPhoto.querySelector('img');
-  const nextUrl = nextImg.getAttribute('data-src');
-  if (!nextImg.src || nextImg.src !== nextUrl) {
-    // 异步预加载，不阻塞
-    loadImage(nextImg, nextUrl);
-  }
-  // 再预加载前一张（可选）
-  const prevIndex = (currentIndex - 1 + totalImages) % totalImages;
-  const prevPhoto = photos[prevIndex];
-  const prevImg = prevPhoto.querySelector('img');
-  const prevUrl = prevImg.getAttribute('data-src');
-  if (!prevImg.src || prevImg.src !== prevUrl) {
-    loadImage(prevImg, prevUrl);
-  }
-  
+  const nextIdx = (index + 1) % photos.length;
+  await loadImage(imgs[nextIdx]);
+
+  photos[index].classList.remove('active');
+  index = nextIdx;
+  photos[index].classList.add('active');
+
+  // 仅延迟预载下一张，不批量加载
+  setTimeout(() => {
+    const preIdx = (index + 1) % photos.length;
+    loadImage(imgs[preIdx]);
+  }, 800);
+
   isSliding = false;
 }
 
-// 下一张
-async function nextPhoto() {
-  if (isSliding) return;
-  const newIdx = (currentIndex + 1) % totalImages;
-  await switchToPhoto(newIdx, 'next');
-  resetAutoTimer();
+function startSlide() {
+  clearInterval(timer);
+  timer = setInterval(slide, AUTO_SLIDE_INTERVAL);
 }
+
+// 初始化：极速进入，只加载首图
+async function init() {
+  await loadImage(imgs[0]);
+  // 缩短加载页时长，弱网快速进入
+  setTimeout(() => {
+    loading.classList.add('hidden');
+    startSlide();
+    updateStatus();
+  }, 800);
+}
+
+// 全局点击解锁音频（微信必须真实用户交互）
+document.addEventListener('click', () => {
+  if (!userInteracted) {
+    userInteracted = true;
+    isMute = false;
+    musicBtn.textContent = '🔊';
+    playAudio();
+  }
+}, { once: true });
 
 // 上一张
-async function prevPhoto() {
+prevBtn.onclick = async (e) => {
+  e.stopPropagation();
   if (isSliding) return;
-  const newIdx = (currentIndex - 1 + totalImages) % totalImages;
-  await switchToPhoto(newIdx, 'prev');
-  resetAutoTimer();
-}
+  isSliding = true;
 
-function resetAutoTimer() {
-  if (autoTimer) clearInterval(autoTimer);
-  autoTimer = setInterval(() => {
-    nextPhoto();
-  }, 4500);
-}
+  const prevIdx = (index - 1 + photos.length) % photos.length;
+  await loadImage(imgs[prevIdx]);
 
-function startSlide() {
-  if (autoTimer) clearInterval(autoTimer);
-  autoTimer = setInterval(() => {
-    nextPhoto();
-  }, 4500);
-}
+  photos[index].classList.remove('active');
+  index = prevIdx;
+  photos[index].classList.add('active');
+  isSliding = false;
+  startSlide();
+};
 
-// 音乐控制
-function toggleMute() {
-  if (!userInteracted) {
-    // 尚未交互，触发一次解锁
-    userInteracted = true;
-    isMuted = false;
-    musicBtnUI.textContent = '🔊';
-    applyAudioState();
-  } else {
-    isMuted = !isMuted;
-    musicBtnUI.textContent = isMuted ? '🔇' : '🔊';
-    applyAudioState();
-  }
-}
+// 下一张
+nextBtn.onclick = (e) => {
+  e.stopPropagation();
+  slide();
+  startSlide();
+};
 
-function switchSong() {
-  if (!userInteracted) {
-    userInteracted = true;
-    isMuted = false;
-    musicBtnUI.textContent = '🔊';
-  }
-  const newAudio = currentAudio.id === 'bgm1' ? document.getElementById('bgm2') : document.getElementById('bgm1');
-  const wasPlaying = (!isMuted && !currentAudio.paused);
+// 静音切换
+musicBtn.onclick = (e) => {
+  e.stopPropagation();
+  isMute = !isMute;
+  musicBtn.textContent = isMute ? '🔇' : '🔊';
+  playAudio();
+};
+
+// 切换歌曲
+nextSongBtn.onclick = (e) => {
+  e.stopPropagation();
   currentAudio.pause();
   currentAudio.currentTime = 0;
-  currentAudio = newAudio;
-  if (wasPlaying || !isMuted) {
-    currentAudio.currentTime = 0;
-    currentAudio.play().catch(e => console.warn);
-  }
-  updateStatusText();
-}
-
-// 全局点击解锁音频（兼容移动端）
-function unlockAudioHandler() {
-  if (!userInteracted) {
-    userInteracted = true;
-    isMuted = false;
-    musicBtnUI.textContent = '🔊';
-    applyAudioState();
-    // 移除监听，只触发一次
-    document.removeEventListener('touchstart', unlockAudioHandler);
-    document.removeEventListener('click', unlockAudioHandler);
-  }
-}
-document.addEventListener('touchstart', unlockAudioHandler, { once: true, passive: true });
-document.addEventListener('click', unlockAudioHandler, { once: true });
-// 额外保证按钮也能触发解锁（但避免重复）
-[musicBtnUI, prevBtnUI, nextBtnUI, nextSongBtnUI].forEach(btn => {
-  btn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (!userInteracted) {
-      userInteracted = true;
-      isMuted = false;
-      musicBtnUI.textContent = '🔊';
-      applyAudioState();
-    }
-  });
-});
-
-// 绑定按钮事件
-musicBtnUI.onclick = (e) => {
-  e.stopPropagation();
-  toggleMute();
-};
-prevBtnUI.onclick = (e) => {
-  e.stopPropagation();
-  prevPhoto();
-};
-nextBtnUI.onclick = (e) => {
-  e.stopPropagation();
-  nextPhoto();
-};
-nextSongBtnUI.onclick = (e) => {
-  e.stopPropagation();
-  switchSong();
+  currentAudio = currentAudio === bgm1 ? bgm2 : bgm1;
+  playAudio();
 };
 
-// ----------------------------- 初始化流程 -----------------------------
-async function init() {
-  // 首先显示初始图片（第一个photo里img的data-src转src）
-  const firstImg = photos[0].querySelector('img');
-  const firstUrl = firstImg.getAttribute('data-src');
-  await loadImage(firstImg, firstUrl);
-  loadedCount = 1;
-  updateProgress();
-  
-  // 并发预加载剩余图片（限制3并发，手机友好）
-  preloadAllImagesWithConcurrency(3);
-  
-  // 预加载两首音乐（使用blob方式，兼容且提速）
-  Promise.all([
-    preloadMusicAsBlob("https://cdn.jsdelivr.net/gh/zn099/classphotos/Chinesesong.mp3", "bgm1"),
-    preloadMusicAsBlob("https://cdn.jsdelivr.net/gh/zn099/classphotos/seeyouagain.mp3", "bgm2")
-  ]).then(() => {
-    // 音乐预加载完成，更新进度已在内部调用
-  });
-  
-  // 预加载完成后自动隐藏loading并开始轮播（由updateProgress触发）
-}
-
-// 花瓣动画（与原效果一致）
+// 花瓣动画
 setTimeout(() => {
   setInterval(() => {
     const p = document.createElement('div');
@@ -603,7 +419,7 @@ setTimeout(() => {
   }, 1200);
 }, 1000);
 
-init();
+document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
