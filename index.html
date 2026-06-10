@@ -37,7 +37,7 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 999;
-  transition: opacity 0.4s ease-out;
+  transition: opacity 0.3s ease-out;
 }
 .loading-text {
   color: #fff;
@@ -87,7 +87,7 @@ body {
   letter-spacing: 1px;
 }
 
-/* 单图片容器，杜绝图层黑屏 */
+/* 单图片容器，仅一层，杜绝图层黑屏 */
 .slider {
   width: 100vw;
   height: 100vh;
@@ -173,6 +173,7 @@ body {
   <div class="sub-title">智能装备2201</div>
 </div>
 
+<!-- 仅单张图片容器，无多层div叠加 -->
 <div class="slider">
   <img class="slider-img" id="mainImg" src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.1.webp" alt="">
 </div>
@@ -186,12 +187,13 @@ body {
   <button class="btn" id="next">▶</button>
 </div>
 
-<!-- 音频跨域兼容，微信/iOS专用配置 -->
+<!-- 音频：跨域配置，微信/iOS兼容 -->
 <audio id="bgm1" loop preload="none" crossorigin="anonymous">
   <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/Chinesesong.mp3" type="audio/mpeg">
 
 <audio id="bgm2" loop preload="none" crossorigin="anonymous">
   <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/seeyouagain.mp3" type="audio/mpeg">
+
 
 <script>
 // 图片地址列表
@@ -271,7 +273,7 @@ function updateStatus() {
   playStatus.textContent = isMute ? '🔇 静音' : `正在播放 ${songNames[currentAudio.id]}`;
 }
 
-// 图片预加载+超时容错
+// 图片预加载+超时，弱网不卡死
 function preloadImg(url, timeout = 3000) {
   return new Promise(resolve => {
     const tempImg = new Image();
@@ -310,7 +312,7 @@ function startSlide() {
   timer = setInterval(slide, AUTO_SLIDE_INTERVAL);
 }
 
-// 音频播放逻辑（微信/苹果设备重试兼容）
+// 音频播放（微信/ios双事件兼容+重试）
 function playAudio() {
   if (!userInteracted) return;
   currentAudio.muted = isMute;
@@ -328,7 +330,7 @@ function playAudio() {
   updateStatus();
 }
 
-// 解锁音频（触摸+点击双事件，适配微信）
+// 解锁音频（触摸+点击双监听，微信必备）
 function unlockAudio() {
   if (userInteracted) return;
   userInteracted = true;
@@ -339,18 +341,14 @@ function unlockAudio() {
 document.addEventListener('touchstart', unlockAudio, { once: true });
 document.addEventListener('click', unlockAudio, { once: true });
 
-// 页面初始化：延长加载至2000ms，充分加载资源
+// 初始化
 async function init() {
-  // 优先加载当前图 + 下一张图
   await preloadImg(imgList[0]);
-  preloadImg(imgList[1]);
-
-  // 延长加载页停留时间：2000毫秒（2秒）
   setTimeout(() => {
     loading.classList.add('hidden');
     startSlide();
     updateStatus();
-  }, 2000);
+  }, 600);
 }
 
 // 上一张
