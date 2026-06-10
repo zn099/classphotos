@@ -12,7 +12,7 @@
   box-sizing: border-box;
 }
 body {
-  background: #000000;
+  background: #0a0a0a;
   overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
   user-select: none;
@@ -25,7 +25,7 @@ body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: #000000;
+  background: #0a0a0a;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -146,7 +146,7 @@ body {
   top: -10%;
   z-index: 50;
   border-radius: 50% 0 50% 50%;
-  background: linear-gradient(135deg, #f6e4e4, #ffe0f0);
+  background: linear-gradient(135deg, #f6d6e4, #ffe0f0);
   opacity: 0.35;
   pointer-events: none;
   animation: fall linear infinite;
@@ -158,6 +158,7 @@ body {
 </head>
 
 <body>
+<!-- 加载页：统一显示 回忆加载中 -->
 <div class="loading" id="loading">
   <div class="loading-dot"></div>
   <div class="loading-text">回忆加载中</div>
@@ -169,50 +170,50 @@ body {
 </div>
 
 <div class="slider" id="slider">
-  <div class="photo active" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p0.1.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p0.2.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p0.3.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p0.4.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p0.5.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p1.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p2.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p3.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p3.5.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p4.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p4.5.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p5.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p6.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p7.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p8.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p9.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p10.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p11.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p12.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p12.4.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p12.8.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p13.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p14.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p15.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p16.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p16.5.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p17.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p18.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p19.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p20.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p21.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p22.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p23.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p24.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p24.5.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p25.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p26.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p27.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p28.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p28.5.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p29.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p30.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p31.webp)"></div>
-  <div class="photo" style="background-image:url(https://jsd.cdn.zzko.cn/gh/zn099/classphotos/p32.webp)"></div>
+  <div class="photo active" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.1.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.2.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.3.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.4.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.5.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p1.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p2.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p3.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p3.5.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p4.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p4.5.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p5.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p6.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p7.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p8.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p9.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p10.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p11.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p12.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p12.4.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p12.8.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p13.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p14.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p15.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p16.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p16.5.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p17.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p18.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p19.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p20.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p21.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p22.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p23.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p24.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p24.5.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p25.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p26.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p27.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p28.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p28.5.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p29.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p30.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p31.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p32.webp)"></div>
 </div>
 
 <div class="play-status" id="playStatus">音乐加载中...</div>
@@ -224,12 +225,11 @@ body {
   <button class="btn" id="next">▶</button>
 </div>
 
-<!-- 音频已替换国内镜像 -->
-<audio id="bgm1" loop preload="metadata" muted>
-  <source src="https://jsd.cdn.zzko.cn/gh/zn099/classphotos/Chinesesong.m4a" type="audio/mp4">
+<audio id="bgm1" loop preload="auto">
+  <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/Chinesesong.m4a" type="audio/mp4">
 </audio>
-<audio id="bgm2" loop preload="none" muted>
-  <source src="https://jsd.cdn.zzko.cn/gh/zn099/classphotos/seeyouagain.m4a" type="audio/mp4">
+<audio id="bgm2" loop preload="none">
+  <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/seeyouagain.m4a" type="audio/mp4">
 </audio>
 
 <script>
@@ -256,7 +256,7 @@ let currentAudio = bgm1;
 let userInteracted = false;
 let isAudioLoaded = false;
 
-// 更新状态栏
+// 实时更新状态栏
 function updateStatus() {
   if (!userInteracted) {
     playStatus.textContent = isAudioLoaded ? '点击页面播放音乐' : '音乐加载中...';
@@ -281,28 +281,24 @@ function preloadFirstImg() {
   });
 }
 
-// 音频加载完成监听
-bgm1.oncanplay = () => {
+// 音乐加载监听
+bgm1.oncanplaythrough = () => {
   isAudioLoaded = true;
   updateStatus();
 };
 
-// 播放控制
+// 播放音频
 function playAudio() {
-  if (!userInteracted) return;
+  if (!userInteracted || !isAudioLoaded) return;
   currentAudio.muted = isMute;
-  if (!isMute) {
-    currentAudio.play().catch(() => {
-      isMute = true;
-      musicBtn.textContent = '🔇';
-    });
-  } else {
-    currentAudio.pause();
-  }
+  isMute ? currentAudio.pause() : currentAudio.play().catch(() => {
+    isMute = true;
+    musicBtn.textContent = '🔇';
+  });
   updateStatus();
 }
 
-// 图片轮播
+// 轮播
 function slide() {
   photos[index].classList.remove('active');
   index = (index + 1) % photos.length;
@@ -316,9 +312,10 @@ function startSlide() {
   timer = setInterval(slide, AUTO_SLIDE_INTERVAL);
 }
 
-// 初始化 5秒超时
+// 初始化：最长等待5秒音乐
 async function init() {
   await preloadFirstImg();
+  // 5秒后强制进入页面
   setTimeout(() => {
     loading.classList.add('hidden');
     startSlide();
@@ -326,7 +323,7 @@ async function init() {
   }, 5000);
 }
 
-// 首次点击播放
+// 首次交互播放
 document.addEventListener('click', () => {
   if (!userInteracted) {
     userInteracted = true;
@@ -336,7 +333,7 @@ document.addEventListener('click', () => {
   }
 }, { once: true });
 
-// 按钮事件
+// 按钮控制
 prevBtn.onclick = (e) => {
   e.stopPropagation();
   photos[index].classList.remove('active');
