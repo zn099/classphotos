@@ -298,7 +298,7 @@ function preloadMainAudio() {
     // 加载失败兜底
     bgm1.onerror = finishLoad;
     // 最长等待5秒，防止卡死
-    setTimeout(finishLoad, 5000);
+    setTimeout(finishLoad, 10000);
   });
 }
 
