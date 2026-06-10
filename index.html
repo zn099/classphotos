@@ -158,7 +158,7 @@ body {
 </head>
 
 <body>
-<!-- 加载页：统一显示 回忆加载中 -->
+<!-- 加载页固定文字：回忆加载中 -->
 <div class="loading" id="loading">
   <div class="loading-dot"></div>
   <div class="loading-text">回忆加载中</div>
@@ -225,12 +225,13 @@ body {
   <button class="btn" id="next">▶</button>
 </div>
 
-<audio id="bgm1" loop preload="auto">
+<!-- 优化点1：preload="metadata" 只加载元数据，边播边缓冲；muted初始静音兼容浏览器规则 -->
+<audio id="bgm1" loop preload="metadata" muted>
   <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/Chinesesong.m4a" type="audio/mp4">
-</audio>
-<audio id="bgm2" loop preload="none">
+
+<audio id="bgm2" loop preload="none" muted>
   <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/seeyouagain.m4a" type="audio/mp4">
-</audio>
+
 
 <script>
 const photos = document.querySelectorAll('.photo');
@@ -256,7 +257,7 @@ let currentAudio = bgm1;
 let userInteracted = false;
 let isAudioLoaded = false;
 
-// 实时更新状态栏
+// 状态栏统一更新逻辑
 function updateStatus() {
   if (!userInteracted) {
     playStatus.textContent = isAudioLoaded ? '点击页面播放音乐' : '音乐加载中...';
@@ -281,24 +282,28 @@ function preloadFirstImg() {
   });
 }
 
-// 音乐加载监听
-bgm1.oncanplaythrough = () => {
+// 优化点2：改用 canplay（能出声就判定加载完成，不再等完整缓冲）
+bgm1.oncanplay = () => {
   isAudioLoaded = true;
   updateStatus();
 };
 
 // 播放音频
 function playAudio() {
-  if (!userInteracted || !isAudioLoaded) return;
+  if (!userInteracted) return;
   currentAudio.muted = isMute;
-  isMute ? currentAudio.pause() : currentAudio.play().catch(() => {
-    isMute = true;
-    musicBtn.textContent = '🔇';
-  });
+  if (!isMute) {
+    currentAudio.play().catch(() => {
+      isMute = true;
+      musicBtn.textContent = '🔇';
+    });
+  } else {
+    currentAudio.pause();
+  }
   updateStatus();
 }
 
-// 轮播
+// 图片轮播 + 预加载下一张
 function slide() {
   photos[index].classList.remove('active');
   index = (index + 1) % photos.length;
@@ -312,10 +317,10 @@ function startSlide() {
   timer = setInterval(slide, AUTO_SLIDE_INTERVAL);
 }
 
-// 初始化：最长等待5秒音乐
+// 初始化：最长等待 5 秒音乐，超时强制进入页面
 async function init() {
   await preloadFirstImg();
-  // 5秒后强制进入页面
+  // 5秒超时，无论音乐是否加载完成，都关闭加载页、启动轮播
   setTimeout(() => {
     loading.classList.add('hidden');
     startSlide();
@@ -323,7 +328,7 @@ async function init() {
   }, 5000);
 }
 
-// 首次交互播放
+// 全局点击触发播放（兼容浏览器自动播放限制）
 document.addEventListener('click', () => {
   if (!userInteracted) {
     userInteracted = true;
@@ -333,7 +338,7 @@ document.addEventListener('click', () => {
   }
 }, { once: true });
 
-// 按钮控制
+// 上一张按钮
 prevBtn.onclick = (e) => {
   e.stopPropagation();
   photos[index].classList.remove('active');
@@ -342,12 +347,14 @@ prevBtn.onclick = (e) => {
   startSlide();
 };
 
+// 下一张按钮
 nextBtn.onclick = (e) => {
   e.stopPropagation();
   slide();
   startSlide();
 };
 
+// 静音/播放切换
 musicBtn.onclick = (e) => {
   e.stopPropagation();
   isMute = !isMute;
@@ -355,6 +362,7 @@ musicBtn.onclick = (e) => {
   playAudio();
 };
 
+// 切歌按钮
 nextSongBtn.onclick = (e) => {
   e.stopPropagation();
   currentAudio.pause();
@@ -364,7 +372,7 @@ nextSongBtn.onclick = (e) => {
   playAudio();
 };
 
-// 花瓣动画
+// 花瓣动画（延迟启动，不抢占资源）
 setTimeout(() => {
   setInterval(() => {
     const p = document.createElement('div');
