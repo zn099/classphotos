@@ -2,13 +2,11 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<!-- 移动端专属适配，兼容微信、手机浏览器 -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="renderer" content="webkit">
-<!-- CDN预连接，加速资源请求 -->
 <link rel="preconnect" href="cdn.jsdelivr.net" crossorigin>
 <meta http-equiv="Cache-Control" content="public, max-age=31536000, immutable">
 <title>致我们的青春</title>
@@ -27,7 +25,6 @@ body {
   -webkit-backface-visibility: hidden;
 }
 
-/* 加载动画 */
 .loading {
   position: fixed;
   top: 0;
@@ -65,7 +62,6 @@ body {
   pointer-events: none;
 }
 
-/* 顶部标题 */
 .head-text {
   position: fixed;
   top: 5vh;
@@ -90,7 +86,6 @@ body {
   letter-spacing: 1px;
 }
 
-/* 图片轮播容器 */
 .slider {
   width: 100vw;
   height: 100vh;
@@ -111,12 +106,13 @@ body {
   height: 100%;
   object-fit: contain;
   display: block;
+  /* 关键：解决手机端跨域图片被拦截 */
+  referrerpolicy="no-referrer";
 }
 .photo.active {
   opacity: 1;
 }
 
-/* 播放状态文字 */
 .play-status {
   position: fixed;
   bottom: 10vh;
@@ -131,7 +127,6 @@ body {
   letter-spacing: 1px;
 }
 
-/* 控制按钮区域 */
 .controls {
   position: fixed;
   bottom: 4vh;
@@ -158,7 +153,6 @@ body {
   background: rgba(255,255,255,0.2);
 }
 
-/* 花瓣飘落动画 */
 .petal {
   position: fixed;
   top: -10%;
@@ -242,11 +236,11 @@ body {
   <button class="btn" id="next">▶</button>
 </div>
 
-<!-- MP3音频配置 + 微信兼容，preload=none 初始不加载 -->
-<audio id="bgm1" loop preload="none">
+<!-- 关键：加 crossorigin，微信/iOS 才能正常播放跨域MP3 -->
+<audio id="bgm1" loop preload="none" crossorigin="anonymous">
   <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/Chinesesong.mp3" type="audio/mpeg">
 
-<audio id="bgm2" loop preload="none">
+<audio id="bgm2" loop preload="none" crossorigin="anonymous">
   <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/seeyouagain.mp3" type="audio/mpeg">
 
 
@@ -273,7 +267,6 @@ let userInteracted = false;
 const loadedImages = new Set();
 let isSliding = false;
 
-// 更新播放状态文字
 function updateStatus() {
   if (!userInteracted) {
     playStatus.textContent = '点击页面播放音乐';
@@ -282,35 +275,37 @@ function updateStatus() {
   playStatus.textContent = isMute ? '🔇 静音' : `正在播放 ${songNames[currentAudio.id]}`;
 }
 
-// 图片加载函数（单请求+超时，适配手机低并发）
-function loadImage(imgEl, timeout = 2500) {
+function loadImage(imgEl, timeout = 3000) {
   const url = imgEl.src;
   if (loadedImages.has(url)) return Promise.resolve();
   return new Promise(resolve => {
-    let timer = setTimeout(resolve, timeout);
+    let t = setTimeout(resolve, timeout);
     imgEl.onload = () => {
-      clearTimeout(timer);
+      clearTimeout(t);
       loadedImages.add(url);
       resolve();
     };
     imgEl.onerror = () => {
-      clearTimeout(timer);
+      clearTimeout(t);
       resolve();
     };
     imgEl.src = url;
   });
 }
 
-// 音频播放（微信内核失败自动重试）
+// 微信/ios 专用：必须在交互事件里 play，并且强重试
 function playAudio() {
   if (!userInteracted) return;
   currentAudio.muted = isMute;
+
   if (!isMute) {
-    currentAudio.play().catch(() => {
+    currentAudio.play().catch(e => {
+      // 微信常见：第一次失败，重新 load 再试
       currentAudio.load();
-      currentAudio.play().catch(() => {
+      currentAudio.play().catch(e2 => {
         isMute = true;
         musicBtn.textContent = '🔇';
+        playStatus.textContent = '播放失败，请重试';
       });
     });
   } else {
@@ -319,7 +314,6 @@ function playAudio() {
   updateStatus();
 }
 
-// 轮播逻辑：加载完成再切换，防止黑屏
 async function slide() {
   if (isSliding) return;
   isSliding = true;
@@ -331,7 +325,6 @@ async function slide() {
   index = nextIdx;
   photos[index].classList.add('active');
 
-  // 延迟预加载下一张，不抢占网络
   setTimeout(() => {
     const preIdx = (index + 1) % photos.length;
     loadImage(imgs[preIdx]);
@@ -340,13 +333,11 @@ async function slide() {
   isSliding = false;
 }
 
-// 启动自动轮播
 function startSlide() {
   clearInterval(timer);
   timer = setInterval(slide, AUTO_SLIDE_INTERVAL);
 }
 
-// 页面初始化
 async function init() {
   await loadImage(imgs[0]);
   setTimeout(() => {
@@ -356,17 +347,17 @@ async function init() {
   }, 800);
 }
 
-// 首次点击解锁音频（移动端必须用户主动交互）
-document.addEventListener('click', () => {
-  if (!userInteracted) {
-    userInteracted = true;
-    isMute = false;
-    musicBtn.textContent = '🔊';
-    playAudio();
-  }
-}, { once: true });
+// 关键：微信必须用 touchstart + click 双保险
+function unlockAudio() {
+  if (userInteracted) return;
+  userInteracted = true;
+  isMute = false;
+  musicBtn.textContent = '🔊';
+  playAudio();
+}
+document.addEventListener('touchstart', unlockAudio, { once: true });
+document.addEventListener('click', unlockAudio, { once: true });
 
-// 上一张按钮
 prevBtn.onclick = async (e) => {
   e.stopPropagation();
   if (isSliding) return;
@@ -382,14 +373,12 @@ prevBtn.onclick = async (e) => {
   startSlide();
 };
 
-// 下一张按钮
 nextBtn.onclick = (e) => {
   e.stopPropagation();
   slide();
   startSlide();
 };
 
-// 静音切换
 musicBtn.onclick = (e) => {
   e.stopPropagation();
   isMute = !isMute;
@@ -397,7 +386,6 @@ musicBtn.onclick = (e) => {
   playAudio();
 };
 
-// 切换歌曲
 nextSongBtn.onclick = (e) => {
   e.stopPropagation();
   currentAudio.pause();
@@ -406,7 +394,6 @@ nextSongBtn.onclick = (e) => {
   playAudio();
 };
 
-// 花瓣动画
 setTimeout(() => {
   setInterval(() => {
     const p = document.createElement('div');
