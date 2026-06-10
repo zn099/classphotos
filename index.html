@@ -2,14 +2,10 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<!-- 极致缓存优化 -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta http-equiv="Cache-Control" content="public, max-age=31536000, immutable">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<!-- 预连接国内CDN，大幅提速 -->
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
-<title>我们的青春｜班级合照</title>
+<title>致我们 · 滚烫的青春</title>
 <style>
 * {
   margin: 0;
@@ -17,294 +13,248 @@
   box-sizing: border-box;
 }
 body {
-  background: #000;
+  background: #0a0a0a;
   overflow: hidden;
-  font-family: "Microsoft Yahei", sans-serif;
-  transform: translateZ(0);
-  will-change: opacity;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
   user-select: none;
 }
-.title-text {
+
+.head-text {
   position: fixed;
-  top: 40px;
+  top: 5vh;
   left: 0;
   width: 100%;
   text-align: center;
-  color: #ffffff;
-  font-size: 26px;
+  color: #fff;
   z-index: 99;
-  text-shadow: 0 0 12px rgba(0,0,0,0.6);
-  letter-spacing: 2px;
   pointer-events: none;
 }
-.sub-text {
-  top: 80px;
-  font-size: 16px;
-  opacity: 0.9;
+.main-title {
+  font-size: 22px;
+  font-weight: 300;
+  letter-spacing: 3px;
+  opacity: 0.92;
 }
-.album-box {
+.sub-title {
+  font-size: 14px;
+  margin-top: 8px;
+  opacity: 0.6;
+  font-weight: 200;
+  letter-spacing: 1px;
+}
+
+.slider {
   width: 100vw;
   height: 100vh;
   position: relative;
-  touch-action: pan-y;
-  contain: layout size paint;
 }
-.photo-item {
+.photo {
   position: absolute;
   width: 100%;
   height: 100%;
   opacity: 0;
-  transition: opacity 0.5s ease-out;
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
+  transition: opacity 0.6s ease-out;
   will-change: opacity;
-  content-visibility: auto;
 }
-.photo-item.active {
+.photo.active {
   opacity: 1;
 }
-.petal {
+
+.tip {
   position: fixed;
-  z-index: 100;
-  top: -8%;
-  border-radius: 50% 0 50% 50%;
-  background: linear-gradient(135deg,#f8c8dc,#fad7e6);
-  opacity: 0.6;
-  animation: fall linear infinite;
-  will-change: transform;
-  pointer-events: none;
-}
-@keyframes fall {
-  0% {transform: translateY(0) rotate(0deg) translateX(0);}
-  25% {transform: translateY(25vh) rotate(90deg) translateX(6px);}
-  50% {transform: translateY(50vh) rotate(180deg) translateX(-6px);}
-  75% {transform: translateY(75vh) rotate(270deg) translateX(6px);}
-  100% {transform: translateY(100vh) rotate(360deg) translateX(0);}
-}
-.tips {
-  position: fixed;
-  bottom: 80px;
+  bottom: 7vh;
+  left: 0;
   width: 100%;
   text-align: center;
   color: #fff;
-  font-size: 13px;
-  opacity: 0.65;
-  z-index: 99;
+  font-size: 12px;
+  opacity: 0.4;
+  z-index: 90;
   pointer-events: none;
+  letter-spacing: 1px;
 }
-.control-bar {
+
+.controls {
   position: fixed;
-  bottom: 25px;
+  bottom: 4vh;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 18px;
-  padding: 10px 22px;
-  background: rgba(0,0,0,0.45);
-  border-radius: 50px;
-  z-index: 200;
-  backdrop-filter: blur(4px);
+  gap: 12px;
+  z-index: 100;
 }
-.control-btn {
-  color: #fff;
-  background: transparent;
+.btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
   border: none;
-  font-size: 15px;
-  padding: 6px 12px;
-  border-radius: 20px;
-  cursor: pointer;
+  color: #fff;
+  font-size: 16px;
+  display: grid;
+  place-items: center;
+  backdrop-filter: blur(6px);
   transition: all 0.2s;
 }
-.control-btn:hover {
+.btn:active {
   background: rgba(255,255,255,0.2);
 }
-.control-btn.active {
-  background: rgba(255,255,255,0.3);
+
+.petal {
+  position: fixed;
+  top: -10%;
+  z-index: 50;
+  border-radius: 50% 0 50% 50%;
+  background: linear-gradient(135deg, #f6d6e4, #ffe0f0);
+  opacity: 0.35;
+  pointer-events: none;
+  animation: fall linear infinite;
+}
+@keyframes fall {
+  100% { transform: translateY(110vh) rotate(360deg); }
 }
 </style>
 </head>
+
 <body>
 
-<div class="title-text">不负韶华 · 我们的班级</div>
-<div class="title-text sub-text">时光不老 我们不散</div>
-
-<div class="album-box" id="slideWrap">
-  <div class="photo-item active" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p1.webp')"></div>
-  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p2.webp')"></div>
-  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p3.webp')"></div>
-  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p4.webp')"></div>
-  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p5.webp')"></div>
-  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p6.webp')"></div>
-  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p7.webp')"></div>
-  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p8.webp')"></div>
-  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p9.webp')"></div>
-  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p10.webp')"></div>
-  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p11.webp')"></div>
-  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p12.webp')"></div>
-  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p13.webp')"></div>
-  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p14.webp')"></div>
-  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p15.webp')"></div>
-  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p16.webp')"></div>
-  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p17.webp')"></div>
-  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p18.webp')"></div>
-  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p19.webp')"></div>
-  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p20.webp')"></div>
-  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p21.webp')"></div>
-  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p22.webp')"></div>
-  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p23.webp')"></div>
-  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p24.webp')"></div>
-  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p25.webp')"></div>
-  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p26.webp')"></div>
-  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p27.webp')"></div>
-  <div class="photo-item" style="background-image:url('https://cdn.jsdelivr.net/gh/zn099/classphotos/p28.webp')"></div>
+<div class="head-text">
+  <div class="main-title">致我们 · 滚烫的青春</div>
+  <div class="sub-title">少年不惧岁月长 彼方尚有荣光在</div>
 </div>
 
-<div class="tips">点击页面开启音效｜图片预缓存加载｜滑动切图｜控音启停轮播</div>
+<div class="slider" id="slider">
+  <!-- 新增图片 -->
+  <div class="photo active" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.1.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.2.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.3.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.4.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.5.webp)"></div>
 
-<div class="control-bar">
-  <button class="control-btn" id="muteBtn">🔇 播放</button>
-  <button class="control-btn" id="prevSong">⏮ 上一首</button>
-  <button class="control-btn" id="nextSong">⏭ 下一首</button>
-  <button class="control-btn active" id="autoPlayBtn">▶ 自动轮播</button>
+  <!-- 原有图片 -->
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p1.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p2.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p3.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p3.5.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p4.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p4.5.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p5.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p6.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p7.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p8.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p9.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p10.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p11.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p12.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p12.4.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p12.8.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p13.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p14.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p15.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p16.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p16.5.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p17.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p18.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p19.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p20.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p21.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p22.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p23.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p24.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p24.5.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p25.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p26.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p27.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p28.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p28.5.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p29.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p30.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p31.webp)"></div>
+  <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p32.webp)"></div>
 </div>
 
-<!-- 音频CDN地址 -->
-<audio id="bgm1" preload="none" muted>
+<div class="tip">点击播放音乐 · 左右滑动查看照片</div>
+
+<div class="controls">
+  <button class="btn" id="music">🎵</button>
+  <button class="btn" id="prev">◀</button>
+  <button class="btn" id="next">▶</button>
+</div>
+
+<audio id="bgm" preload="none" muted loop>
   <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/Chinesesong.mp3" type="audio/mpeg">
-
-<audio id="bgm2" preload="none" muted>
-  <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/seeyouagain.mp3" type="audio/mpeg">
-
+</audio>
 
 <script>
-// 极速版逻辑：只加载当前+前后1张，极致节省流量
-const photos = document.querySelectorAll('.photo-item');
-const slideWrap = document.getElementById('slideWrap');
+const photos = document.querySelectorAll('.photo');
+const slider = document.getElementById('slider');
+const bgm = document.getElementById('bgm');
+const musicBtn = document.getElementById('music');
+const prevBtn = document.getElementById('prev');
+const nextBtn = document.getElementById('next');
+
 let index = 0;
-let slideTimer = null;
-let autoPlayStatus = true;
-const totalImg = photos.length;
+let autoPlay = true;
+let musicOn = false;
 
-// 仅预加载 前后1张，打开瞬间显示
-const preloadNum = 1;
-function preloadImg(curIndex){
-  for(let i = curIndex - preloadNum; i <= curIndex + preloadNum; i++){
-    let realIdx = (i + totalImg) % totalImg;
-    const img = photos[realIdx].style.backgroundImage;
-    // 静默加载，不阻塞页面
-    const temp = new Image();
-    temp.src = img.replace(/url\(["']?(.*?)["']?\)/,'$1');
-  }
-}
-
-// 自动轮播
-function autoSlide() {
+function slide() {
   photos[index].classList.remove('active');
-  index = (index + 1) % totalImg;
+  index = (index + 1) % photos.length;
   photos[index].classList.add('active');
-  preloadImg(index);
 }
-function startAuto() {
-  slideTimer = setInterval(autoSlide, 4500);
-  autoPlayStatus = true;
-  document.getElementById('autoPlayBtn').classList.add('active');
-}
-function stopAuto() {
-  clearInterval(slideTimer);
-  autoPlayStatus = false;
-  document.getElementById('autoPlayBtn').classList.remove('active');
-}
+let timer = setInterval(slide, 4500);
 
-// 触摸滑动切换
+prevBtn.onclick = () => {
+  clearInterval(timer);
+  photos[index].classList.remove('active');
+  index = (index - 1 + photos.length) % photos.length;
+  photos[index].classList.add('active');
+  timer = setInterval(slide, 4500);
+};
+nextBtn.onclick = () => {
+  clearInterval(timer);
+  slide();
+  timer = setInterval(slide, 4500);
+};
+
+document.onclick = () => {
+  if (!musicOn) {
+    musicOn = true;
+    bgm.muted = false;
+    bgm.play().catch(()=>{});
+    musicBtn.innerText = "🔊";
+  }
+};
+musicBtn.onclick = (e) => {
+  e.stopPropagation();
+  bgm.muted = !bgm.muted;
+  musicBtn.innerText = bgm.muted ? "🎵" : "🔊";
+};
+
 let startX = 0;
-slideWrap.addEventListener('touchstart',e=>{ startX = e.touches[0].clientX; });
-slideWrap.addEventListener('touchend',e=>{
+slider.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+slider.addEventListener('touchend', e => {
   const diff = startX - e.changedTouches[0].clientX;
-  photos[index].classList.remove('active');
-  if(diff>40) index=(index+1)%totalImg;
-  if(diff<-40) index=(index-1+totalImg)%totalImg;
-  photos[index].classList.add('active');
-  preloadImg(index);
+  clearInterval(timer);
+  if (diff > 50) nextBtn.onclick();
+  if (diff < -50) prevBtn.onclick();
 });
 
-// 鼠标拖拽切换
-slideWrap.addEventListener('mousedown',e=>{ startX = e.clientX; });
-slideWrap.addEventListener('mouseup',e=>{
-  const diff = startX - e.clientX;
-  photos[index].classList.remove('active');
-  if(diff>40) index=(index+1)%totalImg;
-  if(diff<-40) index=(index-1+totalImg)%totalImg;
-  photos[index].classList.add('active');
-  preloadImg(index);
-});
-
-// 音频控制
-const bgm1 = document.getElementById('bgm1');
-const bgm2 = document.getElementById('bgm2');
-const muteBtn = document.getElementById('muteBtn');
-let currentAudio = bgm1;
-let isMute = true;
-
-// 页面加载完毕再初始化音乐，不抢占网速
-window.addEventListener('load',()=>{
-  bgm1.load();bgm2.load();
-  preloadImg(0);
-  startAuto();
-},{once:true});
-
-// 点击解锁音频
-document.addEventListener('click',()=>{
-  if(isMute){
-    isMute = false;
-    currentAudio.muted = false;
-    currentAudio.play().catch(()=>{});
-    muteBtn.innerText = '🔊 静音';
-  }
-},{once:true});
-
-// 自动切歌
-function autoSwitchSong(){
-  currentAudio.pause();
-  currentAudio.currentTime = 0;
-  currentAudio = currentAudio === bgm1 ? bgm2 : bgm1;
-  if(!isMute) currentAudio.play().catch(()=>{});
-}
-bgm1.onended = autoSwitchSong;
-bgm2.onended = autoSwitchSong;
-
-// 按钮事件
-muteBtn.onclick = e=>{
-  e.stopPropagation();
-  isMute = !isMute;
-  currentAudio.muted = isMute;
-  muteBtn.innerText = isMute ? '🔇 播放' : '🔊 静音';
-  if(!isMute) currentAudio.play().catch(()=>{});
-}
-document.getElementById('nextSong').onclick=e=>{e.stopPropagation();autoSwitchSong();}
-document.getElementById('prevSong').onclick=e=>{
-  e.stopPropagation();
-  currentAudio.pause();currentAudio.currentTime=0;
-  currentAudio = currentAudio===bgm2?bgm1:bgm2;
-  if(!isMute) currentAudio.play().catch(()=>{});
-}
-document.getElementById('autoPlayBtn').onclick=()=>{
-  autoPlayStatus?stopAuto():startAuto();
-}
-
-// 轻量化花瓣动画
-function createPetal() {
+function petal() {
   const p = document.createElement('div');
   p.classList.add('petal');
-  const size = Math.random()*5+3;
-  p.style.width = size+'px';
-  p.style.height = size*0.8+'px';
-  p.style.left = Math.random()*100+'%';
-  p.style.animationDuration = (Math.random()*6+5)+'s';
+  const s = Math.random() * 6 + 4;
+  p.style.width = s + 'px';
+  p.style.height = s * 0.8 + 'px';
+  p.style.left = Math.random() * 100 + '%';
+  p.style.animationDuration = Math.random() * 7 + 6 + 's';
   document.body.appendChild(p);
-  setTimeout(()=>p.remove(), 10000);
+  setTimeout(() => p.remove(), 13000);
 }
-setInterval(createPetal, 800);
+setInterval(petal, 900);
 </script>
 </body>
 </html>
