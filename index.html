@@ -2,13 +2,17 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
+<!-- 移动端核心适配：禁止缩放、优化视口、微信兼容 -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
+<!-- 微信X5内核优化 -->
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="renderer" content="webkit">
+<!-- CDN预连接，提前建立链接 -->
+<link rel="preconnect" href="cdn.jsdelivr.net" crossorigin>
 <meta http-equiv="Cache-Control" content="public, max-age=31536000, immutable">
-<title>致我们的青春 · 智能装备2201</title>
+<title>致我们的青春</title>
 <style>
 * {
   margin: 0;
@@ -20,10 +24,12 @@ body {
   overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
   user-select: none;
+  /* 移动端防闪烁 */
   -webkit-font-smoothing: antialiased;
+  -webkit-backface-visibility: hidden;
 }
 
-/* 加载页 —— 更友好的预加载反馈 */
+/* 加载页 */
 .loading {
   position: fixed;
   top: 0;
@@ -35,30 +41,15 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  transition: opacity 0.4s ease-out;
-  backdrop-filter: blur(2px);
+  z-index: 999;
+  transition: opacity 0.3s ease-out;
 }
 .loading-text {
   color: #fff;
   font-size: 16px;
-  opacity: 0.8;
+  opacity: 0.7;
   letter-spacing: 2px;
   margin-top: 20px;
-}
-.loading-progress {
-  width: 200px;
-  height: 2px;
-  background: rgba(255,255,255,0.2);
-  border-radius: 4px;
-  margin-top: 24px;
-  overflow: hidden;
-}
-.loading-bar {
-  width: 0%;
-  height: 100%;
-  background: #f0a3be;
-  transition: width 0.2s ease;
 }
 .loading-dot {
   width: 8px;
@@ -76,7 +67,6 @@ body {
   pointer-events: none;
 }
 
-/* 顶部文字 */
 .head-text {
   position: fixed;
   top: 5vh;
@@ -86,644 +76,350 @@ body {
   color: #fff;
   z-index: 99;
   pointer-events: none;
-  text-shadow: 0 2px 6px rgba(0,0,0,0.3);
 }
 .main-title {
   font-size: 22px;
   font-weight: 300;
   letter-spacing: 3px;
-  opacity: 0.95;
+  opacity: 0.92;
 }
 .sub-title {
   font-size: 14px;
   margin-top: 8px;
-  opacity: 0.7;
+  opacity: 0.6;
   font-weight: 200;
   letter-spacing: 1px;
 }
 
-/* 主图容器 - 极简无图层叠加 */
 .slider {
   width: 100vw;
   height: 100vh;
   position: relative;
   overflow: hidden;
-  background: #0a0a0a;
 }
-.slider-img {
+/* 改用img标签，修复手机黑屏、渲染问题 */
+.photo {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.4s ease-out;
+  /* 移动端硬件加速，防黑屏 */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+.photo img {
   width: 100%;
   height: 100%;
   object-fit: contain;
   display: block;
-  transition: opacity 0.35s ease-out;
-  will-change: opacity;
+}
+.photo.active {
+  opacity: 1;
 }
 
-/* 状态文字 */
 .play-status {
   position: fixed;
-  bottom: 11vh;
+  bottom: 10vh;
   left: 0;
   width: 100%;
   text-align: center;
   color: #fff;
   font-size: 12px;
-  opacity: 0.55;
+  opacity: 0.5;
   z-index: 90;
   pointer-events: none;
   letter-spacing: 1px;
-  background: rgba(0,0,0,0.2);
-  backdrop-filter: blur(4px);
-  width: fit-content;
-  margin: 0 auto;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 4px 14px;
-  border-radius: 30px;
-  white-space: nowrap;
 }
 
-/* 按钮区域 */
 .controls {
   position: fixed;
   bottom: 4vh;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 14px;
+  gap: 12px;
   z-index: 100;
-  background: rgba(0,0,0,0.3);
-  backdrop-filter: blur(12px);
-  padding: 6px 16px;
-  border-radius: 60px;
 }
 .btn {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.08);
   border: none;
   color: #fff;
-  font-size: 18px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(4px);
+  font-size: 16px;
+  display: grid;
+  place-items: center;
+  backdrop-filter: blur(6px);
   transition: all 0.2s;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 .btn:active {
-  background: rgba(255,255,255,0.3);
-  transform: scale(0.94);
+  background: rgba(255,255,255,0.2);
 }
 
-/* 花瓣动画 – 轻量级 */
 .petal {
   position: fixed;
   top: -10%;
   z-index: 50;
   border-radius: 50% 0 50% 50%;
-  background: linear-gradient(135deg, #f6d6e4, #ffc0d0);
+  background: linear-gradient(135deg, #f6d6e4, #ffe0f0);
   opacity: 0.35;
   pointer-events: none;
   animation: fall linear infinite;
-  will-change: transform;
 }
 @keyframes fall {
   100% { transform: translateY(110vh) rotate(360deg); }
 }
-
-/* 移动端优化 */
-@media (max-width: 640px) {
-  .btn { width: 40px; height: 40px; font-size: 16px; }
-  .play-status { font-size: 10px; bottom: 10vh; white-space: nowrap; }
-  .main-title { font-size: 20px; }
-}
 </style>
 </head>
-<body>
 
+<body>
 <div class="loading" id="loading">
   <div class="loading-dot"></div>
-  <div class="loading-text">加载青春记忆 · 智能装备2201</div>
-  <div class="loading-progress"><div class="loading-bar" id="loadingBar"></div></div>
-  <div class="loading-text" style="font-size:12px; margin-top:12px;" id="loadingDetail">准备就绪</div>
+  <div class="loading-text">回忆加载中</div>
 </div>
 
 <div class="head-text">
-  <div class="main-title">🌸 致我们的青春 🌸</div>
-  <div class="sub-title">智能装备2201 · 时光珍藏</div>
+  <div class="main-title">致我们的青春</div>
+  <div class="sub-title">智能装备2201</div>
 </div>
 
-<div class="slider">
-  <img class="slider-img" id="mainImg" alt="青春影像" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%231a1a1a'/%3E%3C/svg%3E">
+<div class="slider" id="slider">
+  <div class="photo active"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.1.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.2.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.3.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.4.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.5.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p1.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p2.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p3.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p3.5.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p4.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p4.5.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p5.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p6.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p7.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p8.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p9.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p10.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p11.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p12.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p12.4.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p12.8.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p13.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p14.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p15.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p16.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p16.5.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p17.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p18.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p19.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p20.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p21.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p22.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p23.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p24.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p24.5.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p25.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p26.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p27.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p28.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p28.5.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p29.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p30.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p31.webp" alt=""></div>
+  <div class="photo"><img src="https://cdn.jsdelivr.net/gh/zn099/classphotos/p32.webp" alt=""></div>
 </div>
 
-<div class="play-status" id="playStatus">🎵 轻触屏幕 · 唤醒旋律 🎵</div>
+<div class="play-status" id="playStatus">点击页面播放音乐</div>
 
 <div class="controls">
   <button class="btn" id="musicBtn">🔇</button>
   <button class="btn" id="prev">◀</button>
-  <button class="btn" id="nextSong">🎶</button>
+  <button class="btn" id="nextSong">🔀</button>
   <button class="btn" id="next">▶</button>
 </div>
 
+<!-- 移动端音频优化：preload=none 减少初始流量，微信兼容优先 -->
+<audio id="bgm1" loop preload="none">
+  <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/Chinesesong.m4a" type="audio/mpeg">
+
+<audio id="bgm2" loop preload="none">
+  <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/seeyouagain.m4a" type="audio/mpeg">
+
+
 <script>
-// ---------- 图片 & 音乐 URL 配置 ----------
-const IMG_LIST = [
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.1.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.2.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.3.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.4.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p0.5.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p1.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p2.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p3.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p3.5.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p4.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p4.5.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p5.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p6.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p7.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p8.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p9.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p10.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p11.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p12.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p12.4.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p12.8.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p13.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p14.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p15.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p16.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p16.5.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p17.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p18.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p19.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p20.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p21.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p22.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p23.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p24.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p24.5.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p25.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p26.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p27.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p28.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p28.5.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p29.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p30.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p31.webp",
-  "https://cdn.jsdelivr.net/gh/zn099/classphotos/p32.webp"
-];
-
-const MUSIC_URLS = {
-  song1: "https://cdn.jsdelivr.net/gh/zn099/classphotos/Chinesesong.mp3",
-  song2: "https://cdn.jsdelivr.net/gh/zn099/classphotos/seeyouagain.mp3"
-};
-const SONG_NAMES = { song1: "凤凰花开的路口", song2: "See You Again" };
-
-// ---------- 全局变量 ----------
-let currentImgIndex = 0;            // 当前图片索引
-let slideTimer = null;
-let isMuted = true;                 // 默认静音，需要用户交互后才播放
-let userInteracted = false;
-let currentSongKey = "song1";       // 'song1' or 'song2'
-let audioPlayer = null;             // 动态播放器对象 (blob预加载后创建)
-let audioBlobUrl1 = null;
-let audioBlobUrl2 = null;
-let preloadProgress = 0;            // 整体预加载进度(图片预加载 + 音乐预加载，粗略)
-let totalAssets = IMG_LIST.length + 2;  // 图片总数 + 两首音乐
-let loadedAssets = 0;
-
-// dom 元素
-const mainImg = document.getElementById('mainImg');
-const loadingDiv = document.getElementById('loading');
-const loadingBar = document.getElementById('loadingBar');
-const loadingDetail = document.getElementById('loadingDetail');
+const photos = document.querySelectorAll('.photo');
+const imgs = document.querySelectorAll('.photo img');
+const bgm1 = document.getElementById('bgm1');
+const bgm2 = document.getElementById('bgm2');
 const musicBtn = document.getElementById('musicBtn');
 const prevBtn = document.getElementById('prev');
 const nextBtn = document.getElementById('next');
 const nextSongBtn = document.getElementById('nextSong');
-const playStatusSpan = document.getElementById('playStatus');
+const loading = document.getElementById('loading');
+const playStatus = document.getElementById('playStatus');
 
-// ---------- 辅助函数 ----------
-function updateLoadingProgress() {
-  let percent = (loadedAssets / totalAssets) * 100;
-  percent = Math.min(100, percent);
-  loadingBar.style.width = percent + '%';
-  if (percent >= 100) {
-    loadingDetail.innerText = '✨ 时光之旅即将开启 ✨';
-  } else {
-    loadingDetail.innerText = `加载记忆 ${Math.floor(percent)}% · 请稍候`;
-  }
-}
+const songNames = { bgm1: "凤凰花开的路口", bgm2: "See You Again" };
+const AUTO_SLIDE_INTERVAL = 4500;
 
-function markAssetLoaded() {
-  loadedAssets++;
-  updateLoadingProgress();
-}
+let index = 0;
+let timer = null;
+let isMute = true;
+let currentAudio = bgm1;
+let userInteracted = false;
+const loadedImages = new Set();
+let isSliding = false;
 
-// 图片预加载 (返回promise，用于跟踪)
-function preloadSingleImage(url) {
-  return new Promise((resolve) => {
-    const img = new Image();
-    let resolved = false;
-    const timeout = setTimeout(() => {
-      if (!resolved) {
-        resolved = true;
-        markAssetLoaded(); // 超时也计入完成，避免卡死
-        resolve(false);
-      }
-    }, 4000);
-    img.onload = () => {
-      if (!resolved) {
-        resolved = true;
-        clearTimeout(timeout);
-        markAssetLoaded();
-        resolve(true);
-      }
-    };
-    img.onerror = () => {
-      if (!resolved) {
-        resolved = true;
-        clearTimeout(timeout);
-        markAssetLoaded(); // 出错也算完成，避免卡进度
-        resolve(false);
-      }
-    };
-    img.referrerPolicy = "no-referrer";
-    img.src = url;
-  });
-}
-
-// 并发预加载所有图片 (3个并发，保证带宽合理，同时不阻塞音乐fetch)
-async function preloadAllImages() {
-  const queue = [...IMG_LIST];
-  let active = 0;
-  const concurrency = 3;
-  const results = [];
-  
-  return new Promise((resolve) => {
-    function runNext() {
-      if (queue.length === 0 && active === 0) {
-        resolve(results);
-        return;
-      }
-      while (active < concurrency && queue.length > 0) {
-        const url = queue.shift();
-        active++;
-        preloadSingleImage(url).then(() => {
-          active--;
-          runNext();
-        });
-      }
-    }
-    runNext();
-  });
-}
-
-// ---------- 核心: 音乐预加载 (fetch + blob 极致提速) ----------
-async function preloadMusicAsBlob(url, songId) {
-  try {
-    const response = await fetch(url, { 
-      cache: "force-cache",
-      mode: "cors"
-    });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const blob = await response.blob();
-    const blobUrl = URL.createObjectURL(blob);
-    markAssetLoaded();
-    return blobUrl;
-  } catch (err) {
-    console.warn(`音乐预加载失败 ${songId}:`, err);
-    // 降级: 直接使用原始URL，播放时再加载
-    markAssetLoaded();
-    return null;
-  }
-}
-
-// 创建音频播放器实例 (基于blob url 或 原始url)
-function createAudioFromBlobUrl(blobUrl, originalUrl) {
-  const audio = new Audio();
-  audio.loop = true;
-  audio.preload = "auto";
-  if (blobUrl) {
-    audio.src = blobUrl;
-  } else if (originalUrl) {
-    audio.src = originalUrl;
-  } else {
-    return null;
-  }
-  audio.load();
-  return audio;
-}
-
-// 切换音乐 (内部切换currentSongKey)
-async function switchSong(songKey) {
-  if (!userInteracted) return;
-  
-  const wasPlaying = (audioPlayer && !audioPlayer.paused && !isMuted);
-  if (audioPlayer) {
-    audioPlayer.pause();
-    audioPlayer.currentTime = 0;
-  }
-  currentSongKey = songKey;
-  
-  // 获取对应的blob url或原始url
-  const blobUrl = (currentSongKey === "song1") ? audioBlobUrl1 : audioBlobUrl2;
-  const rawUrl = (currentSongKey === "song1") ? MUSIC_URLS.song1 : MUSIC_URLS.song2;
-  
-  const newAudio = createAudioFromBlobUrl(blobUrl, rawUrl);
-  if (!newAudio) return;
-  
-  audioPlayer = newAudio;
-  // 监听结束自动重播 (loop已启用，但保险处理)
-  audioPlayer.addEventListener('ended', () => {
-    if (audioPlayer && !isMuted && userInteracted) {
-      audioPlayer.currentTime = 0;
-      audioPlayer.play().catch(e => console.warn);
-    }
-  });
-  
-  if (!isMuted && userInteracted) {
-    try {
-      await audioPlayer.play();
-      updatePlayStatusText();
-    } catch (err) {
-      console.warn("自动播放被阻止:", err);
-      isMuted = true;
-      musicBtn.textContent = '🔇';
-      updatePlayStatusText();
-    }
-  } else {
-    // 静音状态也需要加载好但保持暂停
-    updatePlayStatusText();
-  }
-}
-
-// 音乐播放/静音控制
-async function toggleMute() {
+// 更新状态栏
+function updateStatus() {
   if (!userInteracted) {
-    // 如果还没交互，先触发交互解锁
-    await unlockFullInteraction();
-    if (!userInteracted) return;
-  }
-  
-  isMuted = !isMuted;
-  musicBtn.textContent = isMuted ? '🔇' : '🔊';
-  
-  if (!audioPlayer && userInteracted) {
-    // 确保播放器存在
-    await ensureAudioPlayerReady();
-  }
-  
-  if (audioPlayer) {
-    if (!isMuted) {
-      audioPlayer.muted = false;
-      try {
-        await audioPlayer.play();
-        updatePlayStatusText();
-      } catch (e) {
-        isMuted = true;
-        musicBtn.textContent = '🔇';
-        console.warn("播放失败", e);
-      }
-    } else {
-      audioPlayer.pause();
-      updatePlayStatusText();
-    }
-  } else {
-    updatePlayStatusText();
-  }
-}
-
-// 确保音频播放器已经创建(预加载完成后)
-async function ensureAudioPlayerReady() {
-  if (audioPlayer) return audioPlayer;
-  const blobUrl = (currentSongKey === "song1") ? audioBlobUrl1 : audioBlobUrl2;
-  const rawUrl = (currentSongKey === "song1") ? MUSIC_URLS.song1 : MUSIC_URLS.song2;
-  audioPlayer = createAudioFromBlobUrl(blobUrl, rawUrl);
-  if (audioPlayer) {
-    if (!isMuted) {
-      try {
-        await audioPlayer.play();
-      } catch(e) { /* 静默 */ }
-    }
-  }
-  return audioPlayer;
-}
-
-// 更新底部文字
-function updatePlayStatusText() {
-  if (!userInteracted) {
-    playStatusSpan.textContent = '🎵 轻触屏幕 · 唤醒旋律 🎵';
+    playStatus.textContent = '点击页面播放音乐';
     return;
   }
-  if (isMuted || !audioPlayer || audioPlayer.paused) {
-    playStatusSpan.textContent = `🔇 音乐静音 · ${SONG_NAMES[currentSongKey]}`;
-  } else {
-    playStatusSpan.textContent = `🎧 正在播放 · ${SONG_NAMES[currentSongKey]} 🎧`;
-  }
+  playStatus.textContent = isMute ? '🔇 静音' : `正在播放 ${songNames[currentAudio.id]}`;
 }
 
-// 切换歌曲 (UI按钮)
-async function nextMusicTrack() {
-  if (!userInteracted) {
-    await unlockFullInteraction();
-  }
-  const newSong = currentSongKey === "song1" ? "song2" : "song1";
-  await switchSong(newSong);
-  updatePlayStatusText();
-}
-
-// ---------- 图片轮播与预加载整合 ----------
-function changeImageWithFade(newIndex) {
-  const targetUrl = IMG_LIST[newIndex];
-  // 极速切换: 直接换src，先fadeout再fadein保留体验
-  if (mainImg.src !== targetUrl) {
-    mainImg.style.opacity = '0';
-    setTimeout(() => {
-      mainImg.src = targetUrl;
-      // 确保图片加载完成后淡入 (避免空白)
-      if (mainImg.complete) {
-        mainImg.style.opacity = '1';
-      } else {
-        mainImg.onload = () => { mainImg.style.opacity = '1'; };
-        mainImg.onerror = () => { mainImg.style.opacity = '1'; };
-      }
-    }, 150);
-  }
-}
-
-function nextImage() {
-  currentImgIndex = (currentImgIndex + 1) % IMG_LIST.length;
-  changeImageWithFade(currentImgIndex);
-  resetAutoSlide();
-}
-
-function prevImage() {
-  currentImgIndex = (currentImgIndex - 1 + IMG_LIST.length) % IMG_LIST.length;
-  changeImageWithFade(currentImgIndex);
-  resetAutoSlide();
-}
-
-function resetAutoSlide() {
-  if (slideTimer) clearInterval(slideTimer);
-  slideTimer = setInterval(() => {
-    nextImage();
-  }, 5000);
-}
-
-// 异步等待预加载完成并启动
-async function startAppAfterPreload() {
-  // 1. 预加载所有图片 (并发3)
-  await preloadAllImages();
-  
-  // 2. 预加载两首音乐为blob (极致加速)
-  const [blob1, blob2] = await Promise.all([
-    preloadMusicAsBlob(MUSIC_URLS.song1, "song1"),
-    preloadMusicAsBlob(MUSIC_URLS.song2, "song2")
-  ]);
-  audioBlobUrl1 = blob1;
-  audioBlobUrl2 = blob2;
-  
-  // 初始化第一张图片显示
-  mainImg.src = IMG_LIST[0];
-  await new Promise(resolve => {
-    if (mainImg.complete) resolve();
-    else mainImg.onload = resolve;
-    setTimeout(resolve, 800);
+// 图片加载：单请求+超时，适配手机低并发
+function loadImage(imgEl, timeout = 2500) {
+  const url = imgEl.src;
+  if (loadedImages.has(url)) return Promise.resolve();
+  return new Promise(resolve => {
+    let timer = setTimeout(resolve, timeout);
+    imgEl.onload = () => {
+      clearTimeout(timer);
+      loadedImages.add(url);
+      resolve();
+    };
+    imgEl.onerror = () => {
+      clearTimeout(timer);
+      resolve();
+    };
+    // 触发加载
+    imgEl.src = url;
   });
-  mainImg.style.opacity = '1';
-  
-  // 预先创建默认音频对象 (但不自动播放，等待用户手势)
-  const initBlob = currentSongKey === "song1" ? audioBlobUrl1 : audioBlobUrl2;
-  const initRaw = currentSongKey === "song1" ? MUSIC_URLS.song1 : MUSIC_URLS.song2;
-  audioPlayer = createAudioFromBlobUrl(initBlob, initRaw);
-  if (audioPlayer) audioPlayer.loop = true;
-  
-  // 关闭loading页面
-  loadingDiv.classList.add('hidden');
-  
-  // 启动轮播
-  resetAutoSlide();
-  
-  // 更新状态
-  updatePlayStatusText();
-  
-  // 额外注意: 如果用户已经在预加载完成前触发了click？但由于loading遮盖且once监听, 不会丢失解锁
 }
 
-// 用户手势完全解锁 (播放音乐等)
-async function unlockFullInteraction() {
-  if (userInteracted) return;
-  userInteracted = true;
-  
-  // 确保播放器存在
-  if (!audioPlayer) {
-    const blobUrl = (currentSongKey === "song1") ? audioBlobUrl1 : audioBlobUrl2;
-    const rawUrl = (currentSongKey === "song1") ? MUSIC_URLS.song1 : MUSIC_URLS.song2;
-    audioPlayer = createAudioFromBlobUrl(blobUrl, rawUrl);
-    if (audioPlayer) audioPlayer.loop = true;
-  }
-  
-  // 取消静音 (因初始isMuted = true，用户交互后自动播放音乐)
-  if (isMuted === true) {
-    isMuted = false;
-    musicBtn.textContent = '🔊';
-    if (audioPlayer) {
-      audioPlayer.muted = false;
-      try {
-        await audioPlayer.play();
-      } catch (err) {
-        console.warn("播放器启动失败", err);
-        isMuted = true;
+// 音频播放：微信专属兼容
+function playAudio() {
+  if (!userInteracted) return;
+  currentAudio.muted = isMute;
+  if (!isMute) {
+    // 微信内核兜底重试
+    currentAudio.play().catch(() => {
+      currentAudio.load();
+      currentAudio.play().catch(() => {
+        isMute = true;
         musicBtn.textContent = '🔇';
-      }
-    }
+      });
+    });
   } else {
-    if (audioPlayer && audioPlayer.paused) {
-      try { await audioPlayer.play(); } catch(e) {}
-    }
+    currentAudio.pause();
   }
-  updatePlayStatusText();
+  updateStatus();
 }
 
-// 监听用户交互（全屏触摸或点击按钮时均解锁）
-function bindUnlockEvents() {
-  const unlockOnce = () => {
-    unlockFullInteraction();
-    // 保留部分按钮不受干扰，但不会重复解锁
-    document.removeEventListener('touchstart', unlockOnce);
-    document.removeEventListener('click', unlockOnce);
-  };
-  document.addEventListener('touchstart', unlockOnce, { once: true, passive: true });
-  document.addEventListener('click', unlockOnce, { once: true });
-  // 额外保证按钮即使被捕获也能解锁
-  [musicBtn, prevBtn, nextBtn, nextSongBtn].forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (!userInteracted) unlockFullInteraction();
-    }, { once: false });
-  });
+// 轮播：仅预载下一张，严格控制并发
+async function slide() {
+  if (isSliding) return;
+  isSliding = true;
+
+  const nextIdx = (index + 1) % photos.length;
+  await loadImage(imgs[nextIdx]);
+
+  photos[index].classList.remove('active');
+  index = nextIdx;
+  photos[index].classList.add('active');
+
+  // 仅延迟预载下一张，不批量加载
+  setTimeout(() => {
+    const preIdx = (index + 1) % photos.length;
+    loadImage(imgs[preIdx]);
+  }, 800);
+
+  isSliding = false;
 }
 
-// 花瓣动画 (轻量保留)
-function startPetals() {
-  setInterval(() => {
-    if (document.hidden) return;
-    const petal = document.createElement('div');
-    petal.className = 'petal';
-    const size = Math.random() * 8 + 5;
-    const leftPos = Math.random() * 100;
-    const duration = Math.random() * 8 + 5;
-    petal.style.cssText = `width:${size}px;height:${size*0.7}px;left:${leftPos}%;animation-duration:${duration}s;opacity:${Math.random() * 0.3 + 0.2};`;
-    document.body.appendChild(petal);
-    setTimeout(() => petal.remove(), duration * 1000);
-  }, 1100);
+function startSlide() {
+  clearInterval(timer);
+  timer = setInterval(slide, AUTO_SLIDE_INTERVAL);
 }
 
-// 全局错误捕获&重试资源（针对图片加载失败显式修复）
-function enhanceImageReliability() {
-  mainImg.addEventListener('error', () => {
-    console.warn("主图加载失败，重试一次", mainImg.src);
-    const srcCache = mainImg.src;
-    setTimeout(() => {
-      if (mainImg.src === srcCache) {
-        mainImg.src = srcCache + '?retry=' + Date.now();
-      }
-    }, 300);
-  });
-}
-
-// ---------- 初始化执行 ----------
+// 初始化：极速进入，只加载首图
 async function init() {
-  bindUnlockEvents();
-  enhanceImageReliability();
-  
-  // 启动预加载进度监控 & 背景加载所有资源
-  startAppAfterPreload().catch(err => {
-    console.error("预加载过程异常", err);
-    // 即便部分失败也让页面可用
-    loadingDiv.classList.add('hidden');
-    mainImg.src = IMG_LIST[0];
-    resetAutoSlide();
-  });
-  
-  // 按钮绑定事件 (功能)
-  prevBtn.onclick = (e) => { e.stopPropagation(); prevImage(); };
-  nextBtn.onclick = (e) => { e.stopPropagation(); nextImage(); };
-  musicBtn.onclick = (e) => { e.stopPropagation(); toggleMute(); };
-  nextSongBtn.onclick = (e) => { e.stopPropagation(); nextMusicTrack(); };
-  
-  // 轻量花瓣效果延迟启动
-  setTimeout(startPetals, 1500);
+  await loadImage(imgs[0]);
+  // 缩短加载页时长，弱网快速进入
+  setTimeout(() => {
+    loading.classList.add('hidden');
+    startSlide();
+    updateStatus();
+  }, 800);
 }
 
-// 启动一切
-init();
+// 全局点击解锁音频（微信必须真实用户交互）
+document.addEventListener('click', () => {
+  if (!userInteracted) {
+    userInteracted = true;
+    isMute = false;
+    musicBtn.textContent = '🔊';
+    playAudio();
+  }
+}, { once: true });
+
+// 上一张
+prevBtn.onclick = async (e) => {
+  e.stopPropagation();
+  if (isSliding) return;
+  isSliding = true;
+
+  const prevIdx = (index - 1 + photos.length) % photos.length;
+  await loadImage(imgs[prevIdx]);
+
+  photos[index].classList.remove('active');
+  index = prevIdx;
+  photos[index].classList.add('active');
+  isSliding = false;
+  startSlide();
+};
+
+// 下一张
+nextBtn.onclick = (e) => {
+  e.stopPropagation();
+  slide();
+  startSlide();
+};
+
+// 静音切换
+musicBtn.onclick = (e) => {
+  e.stopPropagation();
+  isMute = !isMute;
+  musicBtn.textContent = isMute ? '🔇' : '🔊';
+  playAudio();
+};
+
+// 切换歌曲
+nextSongBtn.onclick = (e) => {
+  e.stopPropagation();
+  currentAudio.pause();
+  currentAudio.currentTime = 0;
+  currentAudio = currentAudio === bgm1 ? bgm2 : bgm1;
+  playAudio();
+};
+
+// 花瓣动画
+setTimeout(() => {
+  setInterval(() => {
+    const p = document.createElement('div');
+    p.className = 'petal';
+    const s = Math.random() * 6 + 4;
+    p.style.cssText = `width:${s}px;height:${s*0.8}px;left:${Math.random()*100}%;animation-duration:${Math.random()*7+6}s`;
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 13000);
+  }, 1200);
+}, 1000);
+
+document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
