@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta http-equiv="Cache-Control" content="public, max-age=31536000, immutable">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<title>致我们 · 滚烫的青春</title>
+<title>致我们的青春</title>
 <style>
 * {
   margin: 0;
@@ -122,8 +122,7 @@ body {
 <body>
 
 <div class="head-text">
-  <div class="main-title">致我们 · 滚烫的青春</div>
-  <div class="sub-title">少年不惧岁月长 彼方尚有荣光在</div>
+  <div class="main-title">致我们的青春</div>
 </div>
 
 <div class="slider" id="slider">
@@ -173,30 +172,29 @@ body {
   <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p32.webp)"></div>
 </div>
 
-<div class="tip">点击播放音乐 · 左右滑动查看照片</div>
 
 <div class="controls">
-  <button class="btn" id="music">🎵</button>
+  <button class="btn" id="musicBtn">🔊</button>
   <button class="btn" id="prev">◀</button>
   <button class="btn" id="next">▶</button>
 </div>
 
-<audio id="bgm" preload="none" muted loop>
-  <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/Chinesesong.mp3" type="audio/mpeg">
+<!-- AAC(m4a) 音频格式 加载更快 -->
+<audio id="bgm" loop autoplay preload="auto">
+  <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/Chinesesong.m4a" type="audio/mp4">
 </audio>
 
 <script>
 const photos = document.querySelectorAll('.photo');
 const slider = document.getElementById('slider');
 const bgm = document.getElementById('bgm');
-const musicBtn = document.getElementById('music');
+const musicBtn = document.getElementById('musicBtn');
 const prevBtn = document.getElementById('prev');
 const nextBtn = document.getElementById('next');
 
 let index = 0;
-let autoPlay = true;
-let musicOn = false;
 
+// 自动轮播
 function slide() {
   photos[index].classList.remove('active');
   index = (index + 1) % photos.length;
@@ -204,6 +202,7 @@ function slide() {
 }
 let timer = setInterval(slide, 4500);
 
+// 上一张
 prevBtn.onclick = () => {
   clearInterval(timer);
   photos[index].classList.remove('active');
@@ -211,26 +210,23 @@ prevBtn.onclick = () => {
   photos[index].classList.add('active');
   timer = setInterval(slide, 4500);
 };
+
+// 下一张
 nextBtn.onclick = () => {
   clearInterval(timer);
   slide();
   timer = setInterval(slide, 4500);
 };
 
-document.onclick = () => {
-  if (!musicOn) {
-    musicOn = true;
-    bgm.muted = false;
-    bgm.play().catch(()=>{});
-    musicBtn.innerText = "🔊";
-  }
-};
-musicBtn.onclick = (e) => {
-  e.stopPropagation();
-  bgm.muted = !bgm.muted;
-  musicBtn.innerText = bgm.muted ? "🎵" : "🔊";
+// 音乐：默认播放，点击静音/取消静音
+let isMute = false;
+musicBtn.onclick = () => {
+  isMute = !isMute;
+  bgm.muted = isMute;
+  musicBtn.innerText = isMute ? "🔇" : "🔊";
 };
 
+// 滑动切图
 let startX = 0;
 slider.addEventListener('touchstart', e => startX = e.touches[0].clientX);
 slider.addEventListener('touchend', e => {
@@ -240,6 +236,7 @@ slider.addEventListener('touchend', e => {
   if (diff < -50) prevBtn.onclick();
 });
 
+// 花瓣动画
 function petal() {
   const p = document.createElement('div');
   p.classList.add('petal');
