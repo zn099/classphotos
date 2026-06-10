@@ -100,6 +100,21 @@ body {
   opacity: 1;
 }
 
+/* 播放状态显示 */
+.play-status {
+  position: fixed;
+  bottom: 10vh;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  color: #fff;
+  font-size: 12px;
+  opacity: 0.5;
+  z-index: 90;
+  pointer-events: none;
+  letter-spacing: 1px;
+}
+
 .controls {
   position: fixed;
   bottom: 4vh;
@@ -203,6 +218,9 @@ body {
   <div class="photo" style="background-image:url(https://cdn.jsdelivr.net/gh/zn099/classphotos/p32.webp)"></div>
 </div>
 
+<!-- 播放状态实时显示 -->
+<div class="play-status" id="playStatus">点击页面播放音乐</div>
+
 <div class="controls">
   <button class="btn" id="musicBtn">🔇</button>
   <button class="btn" id="prev">◀</button>
@@ -210,7 +228,7 @@ body {
   <button class="btn" id="next">▶</button>
 </div>
 
-<!-- 关键：初始muted状态，符合浏览器自动播放策略 -->
+<!-- 音频标签（已补全闭合） -->
 <audio id="bgm1" loop preload="auto" muted>
   <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/Chinesesong.m4a" type="audio/mp4">
 
@@ -228,13 +246,35 @@ const prevBtn = document.getElementById('prev');
 const nextBtn = document.getElementById('next');
 const nextSongBtn = document.getElementById('nextSong');
 const loading = document.getElementById('loading');
+const playStatus = document.getElementById('playStatus');
+
+// 歌曲名称配置
+const songNames = {
+  bgm1: "凤凰花开的路口",
+  bgm2: "See You Again"
+};
 
 let index = 0;
 let timer = null;
-let isMute = true; // 与audio标签的muted属性保持一致
+let isMute = true;
 let currentAudio = bgm1;
 let secondSongLoaded = false;
-let userInteracted = false; // 标记用户是否已交互
+let userInteracted = false;
+
+// ========== 核心：更新播放状态显示 ==========
+function updatePlayStatus() {
+  if (!userInteracted) {
+    playStatus.innerText = "点击页面播放音乐";
+    return;
+  }
+  
+  if (isMute) {
+    playStatus.innerText = "🔇 静音";
+  } else {
+    const currentSongId = currentAudio.id;
+    playStatus.innerText = `播放 ${songNames[currentSongId]}`;
+  }
+}
 
 // ========== 极致精简预加载：只加载第1张图片 ==========
 function preloadFirstImage() {
@@ -254,20 +294,21 @@ function preloadFirstAudio() {
   });
 }
 
-// ========== 核心：统一播放控制函数 ==========
+// ========== 统一播放控制函数 ==========
 function playAudio() {
-  if (!userInteracted) return; // 用户未交互时不播放
+  if (!userInteracted) return;
   
   currentAudio.muted = isMute;
   if (!isMute) {
     currentAudio.play().catch(() => {
-      // 播放失败时保持静音状态
       isMute = true;
       musicBtn.innerText = "🔇";
+      updatePlayStatus();
     });
   } else {
     currentAudio.pause();
   }
+  updatePlayStatus();
 }
 
 // ========== 加载完成后启动 ==========
@@ -276,8 +317,9 @@ async function init() {
   
   loading.classList.add('hidden');
   startAutoSlide();
+  updatePlayStatus(); // 初始状态显示
   
-  // 关键：监听用户第一次交互，自动解除静音播放
+  // 监听用户第一次交互
   document.addEventListener('click', function firstInteraction() {
     if (!userInteracted) {
       userInteracted = true;
@@ -326,7 +368,7 @@ nextBtn.onclick = (e) => {
   startAutoSlide();
 };
 
-// ========== 修复后的音乐控制 ==========
+// ========== 音乐控制 ==========
 musicBtn.onclick = (e) => {
   e.stopPropagation();
   isMute = !isMute;
@@ -334,24 +376,20 @@ musicBtn.onclick = (e) => {
   playAudio();
 };
 
-// ========== 修复后的切歌逻辑 ==========
+// ========== 切歌逻辑 ==========
 nextSongBtn.onclick = (e) => {
   e.stopPropagation();
   
-  // 暂停当前歌曲
   currentAudio.pause();
   currentAudio.currentTime = 0;
   
-  // 切换歌曲
   currentAudio = currentAudio === bgm1 ? bgm2 : bgm1;
   
-  // 加载第二首歌
   if (currentAudio === bgm2 && !secondSongLoaded) {
     bgm2.load();
     secondSongLoaded = true;
   }
   
-  // 保持静音状态一致
   currentAudio.muted = isMute;
   playAudio();
 };
