@@ -228,7 +228,7 @@ body {
 <audio id="bgm1" loop preload="auto">
   <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/Chinesesong.m4a" type="audio/mp4">
 </audio>
-<audio id="bgm2" loop preload="none">
+<audio id="bgm2" loop preload="auto">
   <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/seeyouagain.m4a" type="audio/mp4">
 </audio>
 
@@ -254,73 +254,99 @@ let timer = null;
 let isMute = true;
 let currentAudio = bgm1;
 let userInteracted = false;
-let isAudioLoaded = false;
+
+// 缓存已加载的图片URL
+const loadedImages = new Set();
+// 轮播锁：防止未加载完成就切换
+let isSliding = false;
 
 // 实时更新状态栏
 function updateStatus() {
   if (!userInteracted) {
-    playStatus.textContent = isAudioLoaded ? '点击页面播放音乐' : '音乐加载中...';
+    playStatus.textContent = '点击页面播放音乐';
     return;
   }
   if (isMute) {
     playStatus.textContent = '🔇 静音';
-  } else if (!isAudioLoaded) {
-    playStatus.textContent = '音乐加载中...';
   } else {
     playStatus.textContent = `正在播放 ${songNames[currentAudio.id]}`;
   }
 }
 
-// 预加载第一张图片
-function preloadFirstImg() {
-  return new Promise(resolve => {
+// 预加载图片 Promise
+function loadImage(url) {
+  if (loadedImages.has(url)) return Promise.resolve();
+  return new Promise((resolve) => {
     const img = new Image();
-    img.src = photos[0].style.backgroundImage.replace(/url\(["']?(.*?)["']?\)/, '$1');
-    img.onload = img.onerror = resolve;
-    setTimeout(resolve, 1500);
+    img.src = url;
+    img.onload = () => {
+      loadedImages.add(url);
+      resolve();
+    };
+    img.onerror = resolve; // 加载失败也放行，避免卡死
   });
 }
 
-// 音乐加载监听
-bgm1.oncanplaythrough = () => {
-  isAudioLoaded = true;
-  updateStatus();
-};
+// 从背景图提取URL
+function getPhotoUrl(photoEl) {
+  return photoEl.style.backgroundImage.replace(/url\(["']?(.*?)["']?\)/, '$1');
+}
 
-// 播放音频
+// 播放音频（边加载边播放）
 function playAudio() {
-  if (!userInteracted || !isAudioLoaded) return;
+  if (!userInteracted) return;
   currentAudio.muted = isMute;
-  isMute ? currentAudio.pause() : currentAudio.play().catch(() => {
-    isMute = true;
-    musicBtn.textContent = '🔇';
-  });
+  if (!isMute) {
+    currentAudio.play().catch(() => {
+      isMute = true;
+      musicBtn.textContent = '🔇';
+    });
+  } else {
+    currentAudio.pause();
+  }
   updateStatus();
 }
 
-// 轮播
-function slide() {
+// 安全轮播：必须等下一张加载完成
+async function slide() {
+  if (isSliding) return;
+  isSliding = true;
+
+  const nextIndex = (index + 1) % photos.length;
+  const nextUrl = getPhotoUrl(photos[nextIndex]);
+  
+  // 等待下一张加载完成
+  await loadImage(nextUrl);
+
+  // 切换图片
   photos[index].classList.remove('active');
-  index = (index + 1) % photos.length;
+  index = nextIndex;
   photos[index].classList.add('active');
-  const nextIdx = (index + 1) % photos.length;
-  new Image().src = photos[nextIdx].style.backgroundImage.replace(/url\(["']?(.*?)["']?\)/, '$1');
+
+  // 预加载下下张
+  const preloadIndex = (index + 1) % photos.length;
+  loadImage(getPhotoUrl(photos[preloadIndex]));
+
+  isSliding = false;
 }
 
+// 启动自动轮播
 function startSlide() {
   clearInterval(timer);
   timer = setInterval(slide, AUTO_SLIDE_INTERVAL);
 }
 
-// 初始化：最长等待5秒音乐
+// 初始化
 async function init() {
-  await preloadFirstImg();
-  // 5秒后强制进入页面
-  setTimeout(() => {
-    loading.classList.add('hidden');
-    startSlide();
-    updateStatus();
-  }, 5000);
+  // 加载第一张
+  await loadImage(getPhotoUrl(photos[0]));
+  // 预加载第二张
+  loadImage(getPhotoUrl(photos[1]));
+  
+  // 显示页面
+  loading.classList.add('hidden');
+  startSlide();
+  updateStatus();
 }
 
 // 首次交互播放
@@ -334,11 +360,19 @@ document.addEventListener('click', () => {
 }, { once: true });
 
 // 按钮控制
-prevBtn.onclick = (e) => {
+prevBtn.onclick = async (e) => {
   e.stopPropagation();
+  if (isSliding) return;
+  isSliding = true;
+
+  const prevIndex = (index - 1 + photos.length) % photos.length;
+  await loadImage(getPhotoUrl(photos[prevIndex]));
+
   photos[index].classList.remove('active');
-  index = (index - 1 + photos.length) % photos.length;
+  index = prevIndex;
   photos[index].classList.add('active');
+  
+  isSliding = false;
   startSlide();
 };
 
@@ -360,7 +394,6 @@ nextSongBtn.onclick = (e) => {
   currentAudio.pause();
   currentAudio.currentTime = 0;
   currentAudio = currentAudio === bgm1 ? bgm2 : bgm1;
-  if (currentAudio === bgm2) currentAudio.load();
   playAudio();
 };
 
