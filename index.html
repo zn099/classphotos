@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta http-equiv="Cache-Control" content="public, max-age=31536000, immutable">
-<!-- 移除不必要的预连接，减少DNS查询 -->
 <title>致我们的青春</title>
 <style>
 * {
@@ -205,17 +204,17 @@ body {
 </div>
 
 <div class="controls">
-  <button class="btn" id="musicBtn">🔊</button>
+  <button class="btn" id="musicBtn">🔇</button>
   <button class="btn" id="prev">◀</button>
   <button class="btn" id="nextSong">🔀</button>
   <button class="btn" id="next">▶</button>
 </div>
 
-<!-- 只预加载第一首音乐，第二首点击切歌时才加载 -->
-<audio id="bgm1" loop preload="auto">
+<!-- 关键：初始muted状态，符合浏览器自动播放策略 -->
+<audio id="bgm1" loop preload="auto" muted>
   <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/Chinesesong.m4a" type="audio/mp4">
 
-<audio id="bgm2" loop preload="none">
+<audio id="bgm2" loop preload="none" muted>
   <source src="https://cdn.jsdelivr.net/gh/zn099/classphotos/seeyouagain.m4a" type="audio/mp4">
 
 
@@ -232,18 +231,17 @@ const loading = document.getElementById('loading');
 
 let index = 0;
 let timer = null;
-let isMute = false;
+let isMute = true; // 与audio标签的muted属性保持一致
 let currentAudio = bgm1;
-let secondSongLoaded = false; // 标记第二首是否已加载
+let secondSongLoaded = false;
+let userInteracted = false; // 标记用户是否已交互
 
 // ========== 极致精简预加载：只加载第1张图片 ==========
 function preloadFirstImage() {
   return new Promise((resolve) => {
     const firstImg = new Image();
     firstImg.src = photos[0].style.backgroundImage.replace(/url\(["']?(.*?)["']?\)/, '$1');
-    // 加载成功或失败都resolve，不阻塞页面
     firstImg.onload = firstImg.onerror = () => resolve();
-    // 0.8秒超时强制继续
     setTimeout(resolve, 800);
   });
 }
@@ -252,32 +250,43 @@ function preloadFirstImage() {
 function preloadFirstAudio() {
   return new Promise((resolve) => {
     bgm1.oncanplaythrough = resolve;
-    // 0.8秒超时强制继续
     setTimeout(resolve, 800);
   });
 }
 
+// ========== 核心：统一播放控制函数 ==========
+function playAudio() {
+  if (!userInteracted) return; // 用户未交互时不播放
+  
+  currentAudio.muted = isMute;
+  if (!isMute) {
+    currentAudio.play().catch(() => {
+      // 播放失败时保持静音状态
+      isMute = true;
+      musicBtn.innerText = "🔇";
+    });
+  } else {
+    currentAudio.pause();
+  }
+}
+
 // ========== 加载完成后启动 ==========
 async function init() {
-  // 并行加载首屏图片和第一首音乐
   await Promise.all([preloadFirstImage(), preloadFirstAudio()]);
   
-  // 立即隐藏加载提示
   loading.classList.add('hidden');
-  
-  // 开始自动轮播
   startAutoSlide();
   
-  // 尝试自动播放音乐
-  try {
-    await currentAudio.play();
-  } catch (e) {
-    // 浏览器阻止时，点击页面任意位置播放
-    document.addEventListener('click', function playOnClick() {
-      currentAudio.play().catch(() => {});
-      document.removeEventListener('click', playOnClick);
-    }, { once: true });
-  }
+  // 关键：监听用户第一次交互，自动解除静音播放
+  document.addEventListener('click', function firstInteraction() {
+    if (!userInteracted) {
+      userInteracted = true;
+      isMute = false;
+      musicBtn.innerText = "🔊";
+      playAudio();
+      document.removeEventListener('click', firstInteraction);
+    }
+  }, { once: true });
 }
 
 // ========== 轮播逻辑 ==========
@@ -286,7 +295,6 @@ function slide() {
   index = (index + 1) % photos.length;
   photos[index].classList.add('active');
   
-  // 只预加载下一张图片，不预加载更多
   const nextIndex = (index + 1) % photos.length;
   const tempImg = new Image();
   tempImg.src = photos[nextIndex].style.backgroundImage.replace(/url\(["']?(.*?)["']?\)/, '$1');
@@ -301,7 +309,8 @@ function stopAutoSlide() {
 }
 
 // 上一张
-prevBtn.onclick = () => {
+prevBtn.onclick = (e) => {
+  e.stopPropagation();
   stopAutoSlide();
   photos[index].classList.remove('active');
   index = (index - 1 + photos.length) % photos.length;
@@ -310,22 +319,25 @@ prevBtn.onclick = () => {
 };
 
 // 下一张
-nextBtn.onclick = () => {
+nextBtn.onclick = (e) => {
+  e.stopPropagation();
   stopAutoSlide();
   slide();
   startAutoSlide();
 };
 
-// ========== 音乐控制 ==========
-musicBtn.onclick = () => {
+// ========== 修复后的音乐控制 ==========
+musicBtn.onclick = (e) => {
+  e.stopPropagation();
   isMute = !isMute;
-  currentAudio.muted = isMute;
   musicBtn.innerText = isMute ? "🔇" : "🔊";
+  playAudio();
 };
 
-// 手动切歌（点击时才加载第二首）
+// ========== 修复后的切歌逻辑 ==========
 nextSongBtn.onclick = (e) => {
   e.stopPropagation();
+  
   // 暂停当前歌曲
   currentAudio.pause();
   currentAudio.currentTime = 0;
@@ -333,16 +345,15 @@ nextSongBtn.onclick = (e) => {
   // 切换歌曲
   currentAudio = currentAudio === bgm1 ? bgm2 : bgm1;
   
-  // 如果是第一次切到第二首，手动触发加载
+  // 加载第二首歌
   if (currentAudio === bgm2 && !secondSongLoaded) {
     bgm2.load();
     secondSongLoaded = true;
   }
   
-  // 非静音状态下播放
-  if (!isMute) {
-    currentAudio.play().catch(() => {});
-  }
+  // 保持静音状态一致
+  currentAudio.muted = isMute;
+  playAudio();
 };
 
 // ========== 滑动切图 ==========
@@ -351,12 +362,12 @@ slider.addEventListener('touchstart', e => startX = e.touches[0].clientX);
 slider.addEventListener('touchend', e => {
   const diff = startX - e.changedTouches[0].clientX;
   stopAutoSlide();
-  if (diff > 50) nextBtn.onclick();
-  if (diff < -50) prevBtn.onclick();
+  if (diff > 50) nextBtn.onclick(e);
+  if (diff < -50) prevBtn.onclick(e);
   startAutoSlide();
 });
 
-// ========== 花瓣动画（延迟启动，不抢占首屏资源） ==========
+// ========== 花瓣动画 ==========
 setTimeout(() => {
   function petal() {
     const p = document.createElement('div');
@@ -369,10 +380,10 @@ setTimeout(() => {
     document.body.appendChild(p);
     setTimeout(() => p.remove(), 13000);
   }
-  setInterval(petal, 1200); // 降低花瓣生成频率，减少CPU占用
+  setInterval(petal, 1200);
 }, 1000);
 
-// 页面DOM加载完成后立即启动初始化，不用等所有资源
+// DOM加载完成后立即启动
 document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
