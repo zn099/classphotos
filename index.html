@@ -100,7 +100,7 @@ body {
   opacity: 1;
 }
 
-/* 播放状态显示 */
+/* 播放状态实时显示 */
 .play-status {
   position: fixed;
   bottom: 10vh;
@@ -248,7 +248,7 @@ const nextSongBtn = document.getElementById('nextSong');
 const loading = document.getElementById('loading');
 const playStatus = document.getElementById('playStatus');
 
-// 歌曲名称配置
+// 歌曲名称配置（可自行修改）
 const songNames = {
   bgm1: "凤凰花开的路口",
   bgm2: "See You Again"
@@ -282,7 +282,7 @@ function preloadFirstImage() {
     const firstImg = new Image();
     firstImg.src = photos[0].style.backgroundImage.replace(/url\(["']?(.*?)["']?\)/, '$1');
     firstImg.onload = firstImg.onerror = () => resolve();
-    setTimeout(resolve, 800);
+    setTimeout(resolve, 800); // 0.8秒超时强制继续
   });
 }
 
@@ -290,7 +290,7 @@ function preloadFirstImage() {
 function preloadFirstAudio() {
   return new Promise((resolve) => {
     bgm1.oncanplaythrough = resolve;
-    setTimeout(resolve, 800);
+    setTimeout(resolve, 800); // 0.8秒超时强制继续
   });
 }
 
@@ -301,6 +301,7 @@ function playAudio() {
   currentAudio.muted = isMute;
   if (!isMute) {
     currentAudio.play().catch(() => {
+      // 播放失败时自动回退到静音状态
       isMute = true;
       musicBtn.innerText = "🔇";
       updatePlayStatus();
@@ -313,13 +314,15 @@ function playAudio() {
 
 // ========== 加载完成后启动 ==========
 async function init() {
+  // 并行加载首屏图片和第一首音乐
   await Promise.all([preloadFirstImage(), preloadFirstAudio()]);
   
+  // 立即隐藏加载提示
   loading.classList.add('hidden');
   startAutoSlide();
-  updatePlayStatus(); // 初始状态显示
+  updatePlayStatus();
   
-  // 监听用户第一次交互
+  // 监听用户第一次交互（点击任意位置）
   document.addEventListener('click', function firstInteraction() {
     if (!userInteracted) {
       userInteracted = true;
@@ -331,12 +334,13 @@ async function init() {
   }, { once: true });
 }
 
-// ========== 轮播逻辑 ==========
+// ========== 轮播逻辑（每次只预加载下1张） ==========
 function slide() {
   photos[index].classList.remove('active');
   index = (index + 1) % photos.length;
   photos[index].classList.add('active');
   
+  // 只预加载下一张图片，不预加载更多
   const nextIndex = (index + 1) % photos.length;
   const tempImg = new Image();
   tempImg.src = photos[nextIndex].style.backgroundImage.replace(/url\(["']?(.*?)["']?\)/, '$1');
@@ -350,7 +354,7 @@ function stopAutoSlide() {
   clearInterval(timer);
 }
 
-// 上一张
+// 上一张图片
 prevBtn.onclick = (e) => {
   e.stopPropagation();
   stopAutoSlide();
@@ -360,7 +364,7 @@ prevBtn.onclick = (e) => {
   startAutoSlide();
 };
 
-// 下一张
+// 下一张图片
 nextBtn.onclick = (e) => {
   e.stopPropagation();
   stopAutoSlide();
@@ -376,20 +380,24 @@ musicBtn.onclick = (e) => {
   playAudio();
 };
 
-// ========== 切歌逻辑 ==========
+// ========== 切歌逻辑（点击时才加载第二首） ==========
 nextSongBtn.onclick = (e) => {
   e.stopPropagation();
   
+  // 暂停当前歌曲并重置进度
   currentAudio.pause();
   currentAudio.currentTime = 0;
   
+  // 切换到下一首
   currentAudio = currentAudio === bgm1 ? bgm2 : bgm1;
   
+  // 第一次切到第二首时手动加载
   if (currentAudio === bgm2 && !secondSongLoaded) {
     bgm2.load();
     secondSongLoaded = true;
   }
   
+  // 保持当前静音/播放状态
   currentAudio.muted = isMute;
   playAudio();
 };
@@ -405,7 +413,7 @@ slider.addEventListener('touchend', e => {
   startAutoSlide();
 });
 
-// ========== 花瓣动画 ==========
+// ========== 花瓣动画（延迟1秒启动，不抢占首屏资源） ==========
 setTimeout(() => {
   function petal() {
     const p = document.createElement('div');
@@ -418,10 +426,10 @@ setTimeout(() => {
     document.body.appendChild(p);
     setTimeout(() => p.remove(), 13000);
   }
-  setInterval(petal, 1200);
+  setInterval(petal, 1200); // 降低生成频率，减少CPU占用
 }, 1000);
 
-// DOM加载完成后立即启动
+// DOM加载完成后立即启动，不用等所有资源
 document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
